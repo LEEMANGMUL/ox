@@ -791,8 +791,9 @@ const JL = {
   down: ['아 이거 작년 지침이었지!!'], back: ['잠깐 겸손 연습 좀 했습니다'], lose: ['저보다 잘하시는 분 처음 봐요'], up: ['후… 이제 몸 좀 풀렸네요'],
   mock: ['그러니까 편람 보랬잖아요~', '오늘 저녁엔 편람 정독 확정입니다', '{src} 다시 보고 와요~', '괜찮아요, 저도 신규 땐…'],
 };
-const pickL = (k, q) => { const arr = JL[k]; let s = arr[Math.floor(Math.random() * arr.length)]; if (s.includes('{src}')) { const src = q && q[3] ? String(q[3]).split(' · ')[0] : ''; s = /쪽/.test(src) ? s.replace('{src}', src) : '편람에 다 나와요~'; } return s; };
-const spotOn = (side) => side === 'O' ? 0.08 + Math.random() * 0.34 : 0.58 + Math.random() * 0.34;
+const jr = () => (S.jrng ? S.jrng() : Math.random());
+const pickL = (k, q) => { const arr = JL[k]; let s = arr[Math.floor(jr() * arr.length)]; if (s.includes('{src}')) { const src = q && q[3] ? String(q[3]).split(' · ')[0] : ''; s = /쪽/.test(src) ? s.replace('{src}', src) : '편람에 다 나와요~'; } return s; };
+const spotOn = (side) => side === 'O' ? 0.08 + jr() * 0.34 : 0.58 + jr() * 0.34;
 function moveBot(b, nx) { b.a.img.style.transform = nx < b.x ? 'scaleX(-1)' : ''; b.x = nx; placeActor(b.a, b.x, b.foot); }
 function ghostAt(b) {
   if (reduceMotion) return;
@@ -801,15 +802,17 @@ function ghostAt(b) {
 function sfxPop(b, text) { const p = document.createElement('div'); p.className = 'sfxpop'; p.textContent = text; b.a.el.appendChild(p); setTimeout(() => p.remove(), 1100); }
 function jsay(b, text) { if (performance.now() < (b.hush || 0)) return; sayOn(b.a, text); }
 function jaeunPlan(b, ans) {
+  S.jrng = S.mode === 'multi' ? seeded(((S.seed || 1) * 7919 + S.idx * 104729) >>> 0) : null; // 함께 하기 : 모두에게 같은 재운이
   const rd = cur(); b.truth = ans; b.miss = !rd.bonus && rd.no === b.missNo && b.jl > 1; // 한 판에 딱 한 번 틀림
   if (b.miss) ans = ans === 'O' ? 'X' : 'O';
-  if (b.down) { b.down = false; b.recovered = 1; reviveActor(b.a); b.a.el.classList.add('warp'); moveBot(b, 0.3 + Math.random() * 0.4); void b.a.el.offsetWidth; setTimeout(() => b.a.el.classList.remove('warp'), 80); b.hush = performance.now() + 3500; const line = b.beatenBy ? JL.lose[0] : JL.back[0]; setTimeout(() => { if (S.phase === 'question') sayOn(b.a, line); }, 700); }
+  if (b.down) { b.down = false; b.recovered = 1; reviveActor(b.a); b.a.el.classList.add('warp'); moveBot(b, 0.3 + jr() * 0.4); void b.a.el.offsetWidth; setTimeout(() => b.a.el.classList.remove('warp'), 80); b.hush = performance.now() + 3500; const line = b.beatenBy ? JL.lose[0] : JL.back[0]; setTimeout(() => { if (S.phase === 'question') sayOn(b.a, line); }, 700); }
   b.ans = ans; b.side = undefined; b.moved = true; b.dashed = false; b.said = false; b.lastFollow = 0; b.doubted = false;
-  const r = Math.random(); // 행동 패턴 : 정답 쪽에 진짜로 있을 때도 많아서 예측이 안 돼요
+  const r = jr(); // 행동 패턴 : 정답 쪽에 진짜로 있을 때도 많아서 예측이 안 돼요
   b.mode = r < .3 ? 'honest' : r < .55 ? 'fake' : r < .7 ? 'double' : r < .85 ? 'wobble' : 'follow';
-  b.dashAt = 0.45 + Math.random() * 0.5; // 남은 시간 0.45~0.95초에 (필요하면) 질주
-  b.doubtAt = 1.5 + Math.random() * 0.9; // double : 정답 쪽에 있다가 막판에 오답 쪽으로 갔다가 다시 돌아옴
-  b.nextMove = S.rLen - (0.8 + Math.random() * 1.4);
+  if (S.mode === 'multi' && b.mode === 'follow') b.mode = 'fake'; // 함께 하기에선 사람마다 위치가 달라서 '눈치' 패턴은 빼요
+  b.dashAt = 0.45 + jr() * 0.5; // 남은 시간 0.45~0.95초에 (필요하면) 질주
+  b.doubtAt = 1.5 + jr() * 0.9; // double : 정답 쪽에 있다가 막판에 오답 쪽으로 갔다가 다시 돌아옴
+  b.nextMove = S.rLen - (0.8 + jr() * 1.4);
   b.a.el.classList.remove('dash');
   if (b.oneOnOne === 1) { b.oneOnOne = 2; b.hush = performance.now() + 4500; setTimeout(() => { if (S.phase === 'question') sayOn(b.a, JL.duo[1]); }, 700); }
 }
@@ -823,16 +826,16 @@ function jaeunTick() {
   }
   if (b.mode === 'double' && !b.doubted && b.nextMove === -1 && t <= b.doubtAt) { b.doubted = true; moveBot(b, spotOn(wrong)); jsay(b, pickL('wobble')); }
   if (b.nextMove >= 0 && t <= b.nextMove) {
-    if (b.mode === 'wobble') { moveBot(b, b.x < 0.5 ? 0.53 + Math.random() * 0.12 : 0.35 + Math.random() * 0.12); b.nextMove = t - (0.8 + Math.random() * 0.8); if (!b.said) { b.said = true; jsay(b, pickL('wobble')); } }
+    if (b.mode === 'wobble') { moveBot(b, b.x < 0.5 ? 0.53 + jr() * 0.12 : 0.35 + jr() * 0.12); b.nextMove = t - (0.8 + jr() * 0.8); if (!b.said) { b.said = true; jsay(b, pickL('wobble')); } }
     else {
-      const side = b.mode === 'fake' ? wrong : b.mode === 'follow' ? (Math.random() < .5 ? b.ans : wrong) : b.ans;
+      const side = b.mode === 'fake' ? wrong : b.mode === 'follow' ? (jr() < .5 ? b.ans : wrong) : b.ans;
       moveBot(b, spotOn(side)); b.nextMove = -1;
-      if (Math.random() < .6) setTimeout(() => { if (S.phase === 'question' && !b.dashed && !b.doubted) jsay(b, pickL('fake')); }, 900);
+      if (jr() < .6) setTimeout(() => { if (S.phase === 'question' && !b.dashed && !b.doubted) jsay(b, pickL('fake')); }, 900);
     }
   }
   if (b.mode === 'follow' && b.nextMove === -1 && S.lives > 0 && performance.now() - b.lastFollow > 1600 && Math.abs(S.x - b.x) < 0.13) {
     b.lastFollow = performance.now();
-    if (Math.random() < .55) moveBot(b, b.x < 0.5 ? 0.6 + Math.random() * 0.3 : 0.1 + Math.random() * 0.3);
+    if (jr() < .55) moveBot(b, b.x < 0.5 ? 0.6 + jr() * 0.3 : 0.1 + jr() * 0.3);
     jsay(b, pickL('follow'));
   }
 }
@@ -844,11 +847,11 @@ function jaeunReveal(b, ans, q) {
     setTimeout(() => sayOn(b.a, pickL('tele')), 150); sfxPop(b, '슉!');
   } else if (goal === ans) {
     if (b.recovered === 1) { b.recovered = 2; setTimeout(() => { if (S.phase === 'reveal') sayOn(b.a, JL.up[0]); }, 700); }
-    else if (!b.dashed || Math.random() < .5) setTimeout(() => { if (S.phase === 'reveal') sayOn(b.a, pickL('win', q)); }, 700);
+    else if (!b.dashed || jr() < .5) setTimeout(() => { if (S.phase === 'reveal') sayOn(b.a, pickL('win', q)); }, 700);
   }
   if (b.recovered === 1 && goal === ans && sideOf(b.x) !== goal) b.recovered = 2;
 }
-function jaeunMock(q) { const b = S.jaeun; if (!b || !b.alive || b.down || Math.random() > .45) return; setTimeout(() => { if (S.phase === 'reveal') sayOn(b.a, pickL('mock', q)); }, 2000); }
+function jaeunMock(q) { const b = S.jaeun; if (!b || !b.alive || b.down || jr() > .45) return; setTimeout(() => { if (S.phase === 'reveal') sayOn(b.a, pickL('mock', q)); }, 2000); }
 
 // ---------- 콤보 필살기 컷인 (소년만화풍) ----------
 const CUTIN = { 1: ['정답 연타!', '쾅!'], 2: ['필살! 편람 펼치기!!', '콰광!!'], 3: ['오의! 사례집 천 번 넘기기!!!', '콰과과광!!!'] };
@@ -871,7 +874,11 @@ function setupStage() {
       if (b.master) { a.el.classList.add('master'); S.jaeun = b; b.jl = 2; b.missNo = 3 + Math.floor(Math.random() * 28); }
       placeActor(a, b.x, b.foot); return b;
     });
-  } else S.jaeun = null;
+  } else { // 함께 하기 : 재운이만 등장 (모두에게 같은 움직임)
+    const a = makeActor('b_jaeun_idle', BOT_H * 1.06, '재운이', true); a.el.classList.add('master');
+    const b = { name: '재운이', col: 'jaeun', a, x: 0.5, foot: 80, alive: true, master: true, jl: 2, missNo: 3 + Math.floor(seeded((S.seed || 1) >>> 0)() * 28) };
+    S.jaeun = b; S.bots = [b]; placeActor(a, b.x, b.foot);
+  }
   S.player = makeActor('idle', PLAYER_H, myName(), false);
   S.player.el.classList.add('me'); { const sp = document.createElement('div'); sp.className = 'spot'; S.player.el.querySelector('.body').prepend(sp); }
   S.x = 0.5; placeActor(S.player, S.x, PLAYER_FOOT);
@@ -902,7 +909,7 @@ function loop(ts) {
     $('timer').classList.toggle('hurry', S.t <= 3);
     const canConfirm = S.mode === 'solo' && S.lives > 0 && !!sd && !S.autoGo;
     if ($('confirmBtn').hidden === canConfirm) $('confirmBtn').hidden = !canConfirm;
-    if (S.mode === 'solo') jaeunTick();
+    jaeunTick();
     if (S.t <= 0) reveal();
     else if (S.mode === 'solo' && S.autoGo && S.target === null && sd && S.lives > 0) reveal(); // 혼자 하기 : 고르면 바로 정답
   } else if (S.phase === 'reveal' && S.autoAt) {
@@ -1017,7 +1024,7 @@ function startMulti(seed, ep) {
   if (!nickInput.value.trim()) { toast('함께 하기가 시작됐어요. 이름을 적으면 다음 판부터 참여할 수 있어요.'); return; }
   store.set('ox-nick', nickInput.value.trim());
   const r = seeded(seed); const main = familyFirst(a => seededShuffle(a.length, r).map(i => a[i])); const bon = seededShuffle(BONUS.length, r);
-  S.mode = 'multi'; S.rounds = buildRounds(main, bon); S.ep = ep; resetRun();
+  S.mode = 'multi'; S.rounds = buildRounds(main, bon); S.ep = ep; S.seed = seed; resetRun();
   show('game'); setupStage(); renderStats();
   S.t0 = performance.now() + 3000; S.phase = 'countdown';
   $('qno').textContent = '함께 하기'; $('qno').classList.remove('bonus'); $('qtext').textContent = '곧 첫 문제가 나와요. 모두 같은 문제를 같은 시간에 풀어요!';
