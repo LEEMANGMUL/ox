@@ -269,6 +269,11 @@ h3 { margin: 0 0 8px; font-family: var(--display); font-weight: 400; font-size: 
 .confirmrow { display: flex; justify-content: center; margin-top: 10px; }
 .confirmrow .btn small { font-family: var(--body); font-size: 12px; opacity: .75; }
 .confirmrow:has(#confirmBtn[hidden]) { display: none; }
+.lbrules { list-style: none; margin: 10px 0 0; padding: 10px 12px; border-radius: 12px; background: #FFF8DC; border: 1.5px solid #F2D46B; display: grid; gap: 5px; font-size: 14px; line-height: 1.45; color: #4A3B0A; counter-reset: lbstep; }
+.lb .lbrules li { display: block; background: none; border-radius: 0; padding: 0 0 0 1.6em; text-indent: -1.6em; font-variant-numeric: normal; }
+.lb .lbrules li b { color: #6B4700; }
+.lb .lbrules li.head { font-family: var(--display); font-size: 15px; color: #8A5A00; padding: 0; text-indent: 0; }
+.lb .lbrules li:not(.head)::before { counter-increment: lbstep; content: counter(lbstep); display: inline-grid; place-items: center; width: 1.3em; height: 1.3em; margin-right: .3em; border-radius: 50%; background: #F2B705; color: #fff; font-family: var(--display); font-size: 12px; text-indent: 0; vertical-align: 1px; }
 </style>
 </head>
 <body>
@@ -323,7 +328,7 @@ h3 { margin: 0 0 8px; font-family: var(--display); font-weight: 400; font-size: 
       </div>
       <div class="note" id="liveOff" hidden>실시간 중계서버에 연결하는 중이에요…</div>
       <div class="cols">
-        <div class="lb"><h3>명예의 전당</h3><ol id="lbTitle"></ol><div class="note" id="lbNoteTitle"></div></div>
+        <div class="lb"><h3>명예의 전당</h3><ol id="lbTitle"></ol><ul class="lbrules"></ul><div class="note" id="lbNoteTitle"></div></div>
         <div class="disclaimer">문제와 해설은 「등·초본 발급 창구용 족보(쉬운판)」(독산1동 주민센터, 2026. 10.)과 주민등록 사무편람·질의회신 사례집을 바탕으로 했어요. AI를 활용한 학습용 퀴즈라서, 실제 처리는 주민등록 사무편람과 행정안전부 지침을 따르세요. 캐릭터는 금천구 캐릭터 금나래예요.</div>
       </div>
     </div>
@@ -369,7 +374,7 @@ h3 { margin: 0 0 8px; font-family: var(--display); font-weight: 400; font-size: 
       <div class="row"><button class="btn" id="againBtn" type="button">혼자 다시 하기</button><button class="btn ghost" id="watchBtn" type="button" hidden>계속 관전하기</button><button class="btn ghost" id="homeBtn" type="button">처음 화면</button></div>
       <div class="lb" id="roomRankBox" hidden><h3>이번 판 실시간 순위</h3><ol id="roomRank"></ol></div>
       <div class="cols">
-        <div class="lb"><h3>명예의 전당</h3><ol id="lbOver"></ol><div class="note" id="lbNoteOver"></div></div>
+        <div class="lb"><h3>명예의 전당</h3><ol id="lbOver"></ol><ul class="lbrules"></ul><div class="note" id="lbNoteOver"></div></div>
         <div class="review"><h3>틀린 문제 다시 보기</h3><ul id="reviewList"></ul></div>
       </div>
     </div>
@@ -973,6 +978,10 @@ $('watchBtn').onclick = () => { // 탈락 후 관전
 };
 $('startBtn').onclick = startGame;
 
+// ---------- 명예의 전당 안내 (공통) ----------
+const LB_STEPS = [['이름을 적고 게임을 시작해요.', ''], ['목숨을 다 쓰거나 끝까지 풀면', '결과 화면에서 자동으로 올라가요.'], ['내 최고 점수로 순위가 매겨져요.', '빨리 맞힐수록, 콤보·보너스를 챙길수록 점수가 올라가요!'], ['중간에 나가면 안 올라가요.', '끝까지 가 주세요 😉']];
+function setLbRules(items) { document.querySelectorAll('.lbrules').forEach(ul => { ul.innerHTML = ''; const h = document.createElement('li'); h.className = 'head'; h.textContent = '🏆 명예의 전당에 내 이름 올리는 법'; ul.appendChild(h); items.forEach(([b, t]) => { const li = document.createElement('li'); const bb = document.createElement('b'); bb.textContent = b; li.append(bb, t ? ' ' + t : ''); ul.appendChild(li); }); }); }
+
 // ---------- 함께 하기 (실시간 방) ----------
 let room = null, userNs = null, isHost = false;
 const remote = new Map(); // peer -> {a, x, col, lv, fallen}
@@ -1183,6 +1192,7 @@ function renderStartBtn() {
 const board = new Map(); let boardT = 0;
 const MAXPT = QUESTIONS.length * 200 + BONUS.length * BONUS_PT;
 const lbNotes = (m) => { $('lbNoteTitle').textContent = m; $('lbNoteOver').textContent = m; };
+setLbRules([...LB_STEPS, ['휴대폰과 PC는 기록이 따로예요.', '같은 기기로 도전해 주세요.']]);
 function renderBoard() {
   boardT = 0;
   const rows = [...board.values()].sort((a, b) => b.best - a.best || a.t - b.t).slice(0, 10);
@@ -1193,7 +1203,7 @@ function renderBoard() {
   }
 }
 renderBoard();
-lbNotes(room ? '내 최고 점수만 올라가요. 공개 서버라 기록이 가끔 초기화될 수 있어요.' : '중계서버에 연결되면 순위표가 보여요.');
+lbNotes(room ? '' : '중계서버에 연결되면 순위표가 보여요.');
 if (room) room.onScore((id, buf) => {
   if (!buf.length) { board.delete(id); } else {
     let d; try { d = JSON.parse(String(buf)); } catch { return; }
