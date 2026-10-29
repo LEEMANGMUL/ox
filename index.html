@@ -1231,6 +1231,7 @@ function askQuestion() {
   remote.forEach(r => { if (r.fallen && r.lv > 0) { r.fallen = false; reviveActor(r.a); setImg(r.a, r.col + '_idle'); } r.a.el.classList.remove('cheer'); });
   if (S.mode === 'multi') { pres({ q: S.idx }); if (S.idx === 0) setTimeout(() => { const n = playersInGame().length; if (n > S.maxPl) S.maxPl = n; }, 2000); }
 }
+const srcLabel = (t) => String(t).replace(/편람/g, '2024 사무편람').replace(/사례집/g, '2025 질의회신 사례집');
 function reveal() {
   S.phase = 'reveal'; S.player.el.classList.remove('walk'); $('confirmBtn').hidden = true; S.autoGo = false;
   S.bots.forEach(b => { if (!b.alive || b.moved || !b.side) return; clearTimeout(b.tm); b.moved = true; const nx = b.side === 'O' ? 0.06 + Math.random() * 0.38 : 0.56 + Math.random() * 0.38; b.a.img.style.transform = nx < b.x ? 'scaleX(-1)' : ''; b.x = nx; placeActor(b.a, b.x, b.foot); });
@@ -1278,7 +1279,7 @@ function reveal() {
     : (S.lives > 0 ? `아쉬워요, 정답은 ${ans} · 목숨 1개 남음` : `탈락! 정답은 ${ans}`);
   $('expImg').src = ok || !playing ? IMG.best : IMG.sad;
   $('expText').textContent = q[2];
-  $('expSrc').textContent = `근거 · ${q[3]}` + (playing ? `   (나는 ${pick})` : '');
+  $('expSrc').textContent = `근거 · ${srcLabel(q[3])}` + (playing ? `   (나는 ${pick})` : '');
   $('nextBtn').hidden = S.mode === 'multi';
   $('nextBtn').textContent = (S.lives <= 0 || S.idx + 1 >= S.rounds.length) ? '결과 보기' : '바로 다음';
   const at = S.mode === 'multi' ? S.roundStart + (S.rLen + GAP + AUTO) * 1000 : performance.now() + (AUTO + GAP) * 1000;
@@ -1317,7 +1318,7 @@ function finish() {
   $('watchBtn').hidden = !(S.mode === 'multi' && !done && S.lives <= 0 && !S.crowned);
   const ul = $('reviewList'); ul.innerHTML = '';
   if (!S.wrong.length) { const li = document.createElement('li'); li.textContent = '틀린 문제가 없어요.'; ul.appendChild(li); }
-  S.wrong.forEach(({ q, mine, bonus }) => { const li = document.createElement('li'); const b = document.createElement('b'); b.textContent = (bonus ? '[보너스 금천 퀴즈] ' : '') + q[0]; const a = document.createElement('div'); a.textContent = `정답 ${q[1] ? 'O' : 'X'} · 내 선택 ${mine || '가운데'}`; const e = document.createElement('div'); e.textContent = `${q[2]} (${q[3]})`; li.append(b, a, e); ul.appendChild(li); });
+  S.wrong.forEach(({ q, mine, bonus }) => { const li = document.createElement('li'); const b = document.createElement('b'); b.textContent = (bonus ? '[보너스 금천 퀴즈] ' : '') + q[0]; const a = document.createElement('div'); a.textContent = `정답 ${q[1] ? 'O' : 'X'} · 내 선택 ${mine || '가운데'}`; const e = document.createElement('div'); e.textContent = `${q[2]} (${srcLabel(q[3])})`; li.append(b, a, e); ul.appendChild(li); });
   $('roomRankBox').hidden = S.mode !== 'multi'; renderRoomRank();
   show('over'); saveScore(S.pts, S.score);
   if (S.mode === 'multi') pres({ st: S.lives > 0 ? 'done' : 'out' });
