@@ -1470,6 +1470,8 @@ function makeNetRoom(onState) {
     onPeers(f) { subs.push(f); kick(); return () => {}; },
     onScore(f) { scoreSubs.push(f); },
     saveScore(body) { if (up) client.publish(BASE + '/s/' + DEV, JSON.stringify(body), { qos: 1, retain: true }); return up; },
+    restoreScore(id, body) { if (up) client.publish(BASE + '/s/' + id, JSON.stringify(body), { qos: 1, retain: true }); return up; },
+    clearScore(id) { if (up) client.publish(BASE + '/s/' + id, '', { qos: 1, retain: true }); return up; },
     get online() { return up; },
   };
 }
@@ -1487,7 +1489,7 @@ function renderStartBtn() {
   const failT = setTimeout(() => { if (!everUp) $('liveOff').textContent = '실시간 중계서버에 연결하지 못했어요. 회사·학교 인터넷에서 막혔을 수 있어요(휴대폰 데이터로는 될 수 있어요). 혼자 하기는 그대로 할 수 있어요.'; }, 12000);
   room = makeNetRoom((on) => {
     if (on) {
-      everUp = true; clearTimeout(failT);
+      everUp = true; clearTimeout(failT); setTimeout(lbRestore, 8000);
       $('live').hidden = false; $('chat').hidden = false; $('liveOff').hidden = true;
     } else if (everUp) {
       $('liveOff').hidden = false; $('liveOff').textContent = '중계서버 연결이 끊겼어요. 다시 연결하는 중이에요…';
@@ -1523,6 +1525,18 @@ function renderStartBtn() {
 
 // ---------- 명예의 전당 (중계서버에 보관 · 가끔 초기화될 수 있어요) ----------
 const board = new Map(); let boardT = 0;
+const LB_TOMB = [['fq9vwuspwvw5', 12171]]; // 지운 기록 (다시 올라오지 않게)
+const LB_SEED = { nana2321back: { n: '나나', p: 2321, b: 9, t: 1793160000000 } }; // 서버에서 사라져 되살린 기록
+const isTomb = (id, p) => LB_TOMB.some(([i, pp]) => i === id && pp === p);
+const lbCache = (() => { try { return JSON.parse(store.get('ox-lb-cache') || '{}') || {}; } catch { return {}; } })();
+Object.entries(LB_SEED).forEach(([id, d]) => { if (!lbCache[id]) lbCache[id] = d; });
+const saveCache = () => { try { store.set('ox-lb-cache', JSON.stringify(lbCache)); } catch {} };
+if (LB_TOMB.some(([i, pp]) => i === DEV && pp === (Number(store.get('ox-best-pt')) || -1))) { store.set('ox-best-pt', '-1'); store.set('ox-best-n', ''); store.set('ox-best-b', ''); }
+function lbRestore() { // 중계서버에서 사라진 기록을 이 기기가 기억해 둔 것으로 되살려요
+  if (!room || !room.online) return;
+  Object.entries(lbCache).forEach(([id, d]) => { if (!validId(id) || board.has(id) || !d || typeof d.p !== 'number' || isTomb(id, d.p)) return; room.restoreScore(id, d); });
+}
+setInterval(lbRestore, 5 * 60 * 1000);
 const MAXPT = QUESTIONS.length * 200 + BONUS.length * BONUS_PT;
 const lbNotes = (m) => { $('lbNoteTitle').textContent = m; $('lbNoteOver').textContent = m; };
 setLbRules([...LB_STEPS, ['휴대폰과 PC는 기록이 따로예요.', '같은 기기로 도전해 주세요.']]);
@@ -1541,6 +1555,8 @@ if (room) room.onScore((id, buf) => {
   if (!buf.length) { board.delete(id); } else {
     let d; try { d = JSON.parse(String(buf)); } catch { return; }
     if (!d || typeof d.p !== 'number' || !(d.p >= 0 && d.p <= MAXPT)) return; // 점수(p)가 없는 옛 기록은 건너뛰어요
+    if (isTomb(id, Math.floor(d.p))) { board.delete(id); room.clearScore(id); return; }
+    lbCache[id] = { n: String(d.n || '이름 없음').slice(0, 10), p: Math.floor(d.p), b: Math.floor(+d.b) || 0, t: Number(d.t) || 0 }; saveCache();
     board.set(id, { id, name: String(d.n || '이름 없음').slice(0, 10), best: Math.floor(d.p), correct: Math.max(0, Math.min(QUESTIONS.length, Math.floor(+d.b) || 0)), t: Number(d.t) || 0 });
   }
   if (!boardT) boardT = setTimeout(renderBoard, 80);
@@ -1551,7 +1567,10 @@ function saveScore(points, correct) {
   if (points <= prev && mine) return;
   const better = points > prev;
   const best = Math.max(prev, points); store.set('ox-best-pt', String(best));
-  const body = { n: (nickInput.value.trim() || '이름 없음').slice(0, 10), p: best, b: better ? correct : (mine ? mine.correct : correct), t: Date.now() };
+  const nick = (nickInput.value.trim() || '이름 없음').slice(0, 10);
+  if (better) { store.set('ox-best-n', nick); store.set('ox-best-b', String(correct)); }
+  const body = { n: better ? nick : (mine ? mine.name : (store.get('ox-best-n') || nick)), p: best, b: better ? correct : (mine ? mine.correct : (Number(store.get('ox-best-b')) || 0)), t: better ? Date.now() : (mine ? mine.t : Date.now()) }; // 최고 기록의 이름·정답 수는 그대로
+  lbCache[DEV] = body; saveCache();
   if (room && room.saveScore(body)) { if (better) toast('새 최고 점수가 순위표에 올라갔어요!'); }
 }
 
