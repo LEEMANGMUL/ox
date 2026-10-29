@@ -431,6 +431,29 @@ body::before { content: ''; position: fixed; inset: 0; z-index: -1; pointer-even
 #game .explain { width: min(100%, calc((100svh - 200px) * var(--ar, 1.6))); margin-inline: auto; box-sizing: border-box; }
 @media (max-width: 640px) { #game .stage, #game .board, #game .explain { width: 100%; } }
 #game .wrap { max-width: none; }
+
+/* 재운이 HP 막대 (보스전 느낌) */
+.bossbar { position: absolute; right: 1.6%; top: 3%; z-index: 1500; width: min(34%, 340px); display: flex; align-items: center; gap: 6px; padding: 5px 10px 6px 5px; background: rgba(20,22,30,.86); border: 3px solid #111; border-radius: 14px; box-shadow: 0 0 0 2px #fff, 0 6px 12px rgba(0,0,0,.3); pointer-events: none; }
+.bossbar img { width: 13%; min-width: 26px; aspect-ratio: 1; object-fit: cover; object-position: 50% 8%; border-radius: 50%; background: #FFE2C6; border: 2px solid #fff; }
+.bb-main { flex: 1; min-width: 0; }
+.bb-name { display: flex; align-items: baseline; gap: 4px; font-family: var(--display); color: #fff; font-size: clamp(11px, 1.5vw, 15px); line-height: 1.2; }
+.bb-name b { font-weight: 400; color: #FFD43B; }
+.bb-num { margin-left: auto; font-size: .82em; color: #cfd6e4; font-variant-numeric: tabular-nums; }
+.bb-track { position: relative; height: clamp(8px, 1.3vw, 13px); margin-top: 3px; background: #3a3f4d; border: 2px solid #111; border-radius: 6px; overflow: hidden; }
+.bb-track i { position: absolute; left: 0; top: 0; bottom: 0; }
+.bb-lag { width: var(--lag, 100%); background: #fff; transition: width .9s ease-in; }
+.bb-fill { width: var(--hp, 100%); background: var(--hpc, #43C14B); box-shadow: inset 0 -3px 0 rgba(0,0,0,.18), inset 0 2px 0 rgba(255,255,255,.35); transition: width .25s ease-out, background .3s; }
+.bossbar.low .bb-fill { background: #E53935; animation: bbblink .5s steps(2) infinite; }
+@keyframes bbblink { 50% { opacity: .35; } }
+.bossbar.bbhit { animation: bbshake .45s linear; }
+@keyframes bbshake { 0%, 100% { transform: none; } 20% { transform: translate(-6px, 2px); } 40% { transform: translate(6px, -2px); } 60% { transform: translate(-4px, 1px); } 80% { transform: translate(3px, 0); } }
+.bb-dmg { position: absolute; right: 8%; top: 100%; font-family: var(--display); font-size: clamp(18px, 2.6vw, 30px); color: #FF3B30; -webkit-text-stroke: 2px #fff; paint-order: stroke fill; animation: bbdmg 1.3s ease-out forwards; }
+@keyframes bbdmg { 0% { opacity: 0; transform: translateY(-14px) scale(.6); } 15% { opacity: 1; transform: translateY(0) scale(1.25); } 30% { transform: scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateY(14px); } }
+.bb-ko { position: absolute; inset: 0; display: none; place-items: center; font-family: var(--display); font-size: clamp(20px, 3vw, 34px); color: #FF3B30; -webkit-text-stroke: 2px #fff; paint-order: stroke fill; transform: rotate(-8deg); }
+.bossbar.ko .bb-ko { display: grid; animation: ciSfx .5s cubic-bezier(.2,1.8,.4,1) both; }
+.bossbar.ko img { filter: grayscale(1); }
+@media (max-width: 640px) { .bossbar { width: 50%; top: 2%; padding: 3px 7px 4px 3px; border-width: 2px; border-radius: 10px; } }
+@media (max-width: 640px) { .bubble { max-width: 46%; white-space: normal; line-height: 1.3; border-radius: 12px; } }
 </style>
 </head>
 <body>
@@ -842,7 +865,7 @@ function comboSound(n) {
   steps.forEach((m, i) => setTimeout(() => beep(base * m, i === steps.length - 1 ? .18 : .08, 'square', .05), i * 75));
 }
 
-// ---------- 재운이 : 등·초본 마스터 (혼자 하기 · 절대 안 틀림) ----------
+// ---------- 재운이 : 등·초본 마스터 (목숨 5개 · 가끔 틀림 · 깐죽) ----------
 const JL = {
   fake: ['음~ 이건 쉽지', '오늘 점심 뭐 먹지?', '여기가 명당이네~', '천천히 해도 돼요~', '2번 창구 비었습니다~'],
   wobble: ['어디로 갈까~', '왔다 갔다~', '흠… 흠…', '편람 몇 쪽이었더라~'],
@@ -851,12 +874,43 @@ const JL = {
   tele: ['순간이동!', '(이미 와 있었음)', '저 원래 여기 있었는데요?'],
   win: ['후훗, 기본이지', '{src}이지~', '{src} 몰라요?', '편람에 다 나와요~', '이 정도는 껌이죠', '이건 창구 1년차면 다 알아요~', '편람은 읽는 게 아니라 외우는 거예요'],
   duo: ['이제 우리 둘만 남았네요… 후훗', '저는 퇴근 안 해요. 끝까지 갑니다'],
-  down: ['아 이거 작년 지침이었지!!'], back: ['잠깐 겸손 연습 좀 했습니다'], lose: ['저보다 잘하시는 분 처음 봐요'], up: ['후… 이제 몸 좀 풀렸네요'],
+  start: ['이 문제 저는 눈 감고도 풀어요', '3초 줄게요. 아, 너무 많나?', '이번엔 힌트 드릴까요? …안 드려요~', '이 문제 틀리면 오늘 야근이에요~'],
+  idle: ['고민하는 척하는 거죠?', '편람 펼쳐 볼 시간은 없어요~', '저 벌써 퇴근 준비 중인데요?', '다음 민원인 기다리고 있어요~'],
+  waver: ['마음 정하고 오세요~', '결재 반려됐어요? 왜 돌아가요?', '그 발걸음, 정답이 아니라는 뜻이에요'],
+  deny: ['찍었죠? 다 알아요', '이번 건 쉬운 거였어요', '오~ 이제 2년 차 느낌 나네요'],
+  cbreak: ['콤보 반려입니다~', '연속 기록 소멸~ 수고하셨습니다', '그 콤보, 제가 접수할게요'],
+  last: ['이제 진짜 편람 보셔야 돼요', '마지막 기회예요. 신중하게~', '저 혼자 남는 거 아니죠?'],
+  down: ['아 이거 작년 지침이었지!!', '아… 이거 지침 바뀐 거 몰랐네'],
+  excuse: ['잠깐 겸손 연습 좀 했습니다', '방금 건 일부러 져 드린 거예요', '출제 오류네요. 이의신청 넣습니다', '컨디션 조절 중입니다', '불구덩이 온도 체크 좀 했어요'],
+  lose: ['저보다 잘하시는 분 처음 봐요'], up: ['후… 이제 몸 좀 풀렸네요'],
+  many: ['아직 목숨 많아요. 걱정 마세요'], two: ['저 떨어지면 이 게임 끝나는 거 아시죠?'], one: ['…이제부터 진심 모드입니다'],
+  dead: ['이건… 꿈이야…', '오늘부로 편람 다시 정독합니다'],
   mock: ['그러니까 편람 보랬잖아요~', '오늘 저녁엔 편람 정독 확정입니다', '{src} 다시 보고 와요~', '괜찮아요, 저도 신규 땐…'],
 };
+const JAEUN_LIVES = 5, JAEUN_MISS = 0.5, JAEUN_DMG = 22; // HP 100 · 한 번 틀릴 때마다 22씩 (4번 틀리면 12 남은 딸피) · 본 문제마다 50% 확률로 틀림
 const jr = () => (S.jrng ? S.jrng() : Math.random());
 const pickL = (k, q) => { const arr = JL[k]; let s = arr[Math.floor(jr() * arr.length)]; if (s.includes('{src}')) { const src = q && q[3] ? String(q[3]).split(' · ')[0] : ''; s = /쪽/.test(src) ? s.replace('{src}', src) : '편람에 다 나와요~'; } return s; };
 const spotOn = (side) => side === 'O' ? 0.08 + jr() * 0.34 : 0.58 + jr() * 0.34;
+const jaeunHPOf = (b) => Math.max(0, 100 - JAEUN_DMG * (JAEUN_LIVES - b.jl));
+function jaeunTag(b, hit) { // 오른쪽 위 보스 HP 막대
+  b.a.tag.textContent = '재운이';
+  let bar = document.getElementById('bossbar');
+  if (!bar) {
+    bar = document.createElement('div'); bar.id = 'bossbar'; bar.className = 'bossbar';
+    bar.innerHTML = '<img alt=""><div class="bb-main"><div class="bb-name">재운이 <b>HP</b><span class="bb-num"></span></div><div class="bb-track"><i class="bb-lag"></i><i class="bb-fill"></i></div></div><div class="bb-ko">K.O.</div>';
+    stage.appendChild(bar);
+  }
+  const hp = jaeunHPOf(b);
+  bar.querySelector('img').src = IMG[hp <= 0 ? 'b_jaeun_sad' : hp <= 34 ? 'b_jaeun_sad' : 'b_jaeun_idle'];
+  bar.querySelector('.bb-num').textContent = `${hp} / 100`;
+  bar.style.setProperty('--hp', hp + '%');
+  bar.style.setProperty('--hpc', hp > 56 ? '#43C14B' : hp > 34 ? '#FFB300' : '#E53935');
+  bar.classList.toggle('low', hp > 0 && hp <= 15); bar.classList.toggle('ko', hp <= 0);
+  if (!hit) { bar.style.setProperty('--lag', hp + '%'); bar.classList.remove('bbhit'); return; }
+  bar.classList.remove('bbhit'); void bar.offsetWidth; bar.classList.add('bbhit');
+  const d = document.createElement('div'); d.className = 'bb-dmg'; d.textContent = `-${JAEUN_DMG}`; bar.appendChild(d); setTimeout(() => d.remove(), 1300);
+  setTimeout(() => bar.style.setProperty('--lag', hp + '%'), 650);
+}
 function moveBot(b, nx) { b.a.img.style.transform = nx < b.x ? 'scaleX(-1)' : ''; b.x = nx; placeActor(b.a, b.x, b.foot); }
 function ghostAt(b) {
   if (reduceMotion) return;
@@ -864,57 +918,93 @@ function ghostAt(b) {
 }
 function sfxPop(b, text) { const p = document.createElement('div'); p.className = 'sfxpop'; p.textContent = text; b.a.el.appendChild(p); setTimeout(() => p.remove(), 1100); }
 function jsay(b, text) { if (performance.now() < (b.hush || 0)) return; sayOn(b.a, text); }
+function warpTo(b, nx) { b.a.el.classList.add('warp'); moveBot(b, nx); void b.a.el.offsetWidth; setTimeout(() => b.a.el.classList.remove('warp'), 80); }
 function jaeunPlan(b, ans) {
   S.jrng = S.mode === 'multi' ? seeded(((S.seed || 1) * 7919 + S.idx * 104729) >>> 0) : null; // 함께 하기 : 모두에게 같은 재운이
-  const rd = cur(); b.truth = ans; b.miss = !rd.bonus && rd.no === b.missNo && b.jl > 1; // 한 판에 딱 한 번 틀림
+  const rd = cur(); b.truth = ans;
+  b.miss = !rd.bonus && rd.no >= 3 && jr() < JAEUN_MISS; // 틀리는 문제에서도 당당하게 오답으로 질주
   if (b.miss) ans = ans === 'O' ? 'X' : 'O';
-  if (b.down) { b.down = false; b.recovered = 1; reviveActor(b.a); b.a.el.classList.add('warp'); moveBot(b, 0.3 + jr() * 0.4); void b.a.el.offsetWidth; setTimeout(() => b.a.el.classList.remove('warp'), 80); b.hush = performance.now() + 3500; const line = b.beatenBy ? JL.lose[0] : JL.back[0]; setTimeout(() => { if (S.phase === 'question') sayOn(b.a, line); }, 700); }
-  b.ans = ans; b.side = undefined; b.moved = true; b.dashed = false; b.said = false; b.lastFollow = 0; b.doubted = false;
-  const r = jr(); // 행동 패턴 : 정답 쪽에 진짜로 있을 때도 많아서 예측이 안 돼요
-  b.mode = r < .3 ? 'honest' : r < .55 ? 'fake' : r < .7 ? 'double' : r < .85 ? 'wobble' : 'follow';
-  if (S.mode === 'multi' && b.mode === 'follow') b.mode = 'fake'; // 함께 하기에선 사람마다 위치가 달라서 '눈치' 패턴은 빼요
-  b.dashAt = 0.45 + jr() * 0.5; // 남은 시간 0.45~0.95초에 (필요하면) 질주
-  b.doubtAt = 1.5 + jr() * 0.9; // double : 정답 쪽에 있다가 막판에 오답 쪽으로 갔다가 다시 돌아옴
+  if (b.down) { // 틀린 다음 문제 : 다시 나타나서 변명 + 남은 목숨 대사
+    b.down = false; b.recovered = 1; reviveActor(b.a); warpTo(b, 0.3 + jr() * 0.4); b.hush = performance.now() + 5500;
+    const l1 = b.beatenBy && jr() < .5 ? JL.lose[0] : pickL('excuse');
+    const l2 = b.jl === 1 ? JL.one[0] : b.jl === 2 ? JL.two[0] : (jr() < .5 ? JL.many[0] : '');
+    setTimeout(() => { if (S.phase === 'question') sayOn(b.a, l1); }, 700);
+    if (l2) setTimeout(() => { if (S.phase === 'question') sayOn(b.a, l2); }, 3300);
+  }
+  b.ans = ans; b.side = undefined; b.moved = true; b.dashed = false; b.said = false; b.lastFollow = 0; b.doubted = false; b.waverN = 0; b.waverSaid = false; b.idleSaid = false; b.pSide = null; b.nextCopy = 0;
+  const r = jr(); // 행동 패턴 8가지 : 정답 쪽에 진짜로 있을 때도 많아서 예측이 안 돼요
+  b.mode = r < .2 ? 'honest' : r < .37 ? 'fake' : r < .5 ? 'double' : r < .62 ? 'wobble' : r < .72 ? 'follow' : r < .82 ? 'center' : r < .9 ? 'copy' : 'sleepy';
+  if (S.mode === 'multi' && b.mode === 'follow') b.mode = 'fake'; // 함께 하기에선 사람마다 위치가 달라서 빼요
+  if (S.mode === 'multi' && b.mode === 'copy') b.mode = 'center';
+  b.dashAt = 0.3 + jr() * 2.7; // 질주 타이밍 : 남은 0.3~3초 사이 들쭉날쭉
+  b.doubtAt = b.dashAt + 0.6 + jr() * 1.0;
   b.nextMove = S.rLen - (0.8 + jr() * 1.4);
   b.a.el.classList.remove('dash');
   if (b.oneOnOne === 1) { b.oneOnOne = 2; b.hush = performance.now() + 4500; setTimeout(() => { if (S.phase === 'question') sayOn(b.a, JL.duo[1]); }, 700); }
+  else if (jr() < .3) { const l = pickL('start'); setTimeout(() => { if (S.phase === 'question') jsay(b, l); }, 900); }
 }
 function jaeunTick() {
-  const b = S.jaeun; if (!b || !b.alive || S.phase !== 'question' || b.dashed || !b.ans) return;
-  const t = S.t, wrong = b.ans === 'O' ? 'X' : 'O';
-  if (t <= b.dashAt) { // 1초도 안 남았을 때 : 오답 쪽이면 정답으로 질주, 정답 쪽이면 그대로 버팀
-    b.dashed = true; if (sideOf(b.x) === b.ans) return;
-    ghostAt(b); b.a.el.classList.add('dash'); moveBot(b, spotOn(b.ans));
-    sayOn(b.a, pickL('dash')); sfxPop(b, '슈다다닥!!'); setTimeout(() => b.a.el.classList.remove('dash'), 450); return;
+  const b = S.jaeun; if (!b || !b.alive || S.phase !== 'question' || !b.ans) return;
+  const t = S.t, goal = b.ans, other = goal === 'O' ? 'X' : 'O';
+  // 내 행동에 깐죽 (혼자 하기)
+  if (S.mode === 'solo' && S.lives > 0) {
+    const ps = sideOf(S.x);
+    if (ps && b.pSide && ps !== b.pSide) { b.waverN++; if (b.waverN >= 2 && !b.waverSaid) { b.waverSaid = true; jsay(b, pickL('waver')); } }
+    if (ps) b.pSide = ps;
+    if (!b.idleSaid && !ps && S.rLen - t > 4.5) { b.idleSaid = true; if (Math.random() < .5) jsay(b, pickL('idle')); }
   }
-  if (b.mode === 'double' && !b.doubted && b.nextMove === -1 && t <= b.doubtAt) { b.doubted = true; moveBot(b, spotOn(wrong)); jsay(b, pickL('wobble')); }
+  if (b.dashed) return;
+  if (t <= b.dashAt) { // 막판 : 목표 쪽이 아니면 질주, 이미 목표 쪽이면 그대로 버팀
+    b.dashed = true; if (sideOf(b.x) === goal) return;
+    ghostAt(b); b.a.el.classList.add('dash'); moveBot(b, spotOn(goal));
+    jsay(b, pickL('dash')); sfxPop(b, '슈다다닥!!'); setTimeout(() => b.a.el.classList.remove('dash'), 450); return;
+  }
+  if (b.mode === 'double' && !b.doubted && b.nextMove === -1 && t <= b.doubtAt) { b.doubted = true; moveBot(b, spotOn(other)); jsay(b, pickL('wobble')); }
+  if (b.mode === 'copy' && S.lives > 0 && t <= b.nextCopy) { // 따라쟁이 : 내 옆으로 붙었다가 막판에 갈라지거나 그대로
+    b.nextCopy = t - (0.8 + jr() * 0.6); const nx = Math.max(0.06, Math.min(0.94, S.x + (jr() < .5 ? -1 : 1) * (0.06 + jr() * 0.06))); moveBot(b, nx);
+  }
   if (b.nextMove >= 0 && t <= b.nextMove) {
     if (b.mode === 'wobble') { moveBot(b, b.x < 0.5 ? 0.53 + jr() * 0.12 : 0.35 + jr() * 0.12); b.nextMove = t - (0.8 + jr() * 0.8); if (!b.said) { b.said = true; jsay(b, pickL('wobble')); } }
+    else if (b.mode === 'center') { moveBot(b, 0.48 + jr() * 0.04); b.nextMove = -1; } // 가운데 줄에서 버티다 막판 점프
+    else if (b.mode === 'sleepy' || b.mode === 'copy') { b.nextMove = -1; if (b.mode === 'sleepy' && jr() < .5) jsay(b, JL.idle[2]); } // 늦잠 : 안 움직이다 막판에
     else {
-      const side = b.mode === 'fake' ? wrong : b.mode === 'follow' ? (jr() < .5 ? b.ans : wrong) : b.ans;
+      const side = b.mode === 'fake' ? other : b.mode === 'follow' ? (jr() < .5 ? goal : other) : goal;
       moveBot(b, spotOn(side)); b.nextMove = -1;
-      if (jr() < .6) setTimeout(() => { if (S.phase === 'question' && !b.dashed && !b.doubted) jsay(b, pickL('fake')); }, 900);
+      if (jr() < .6) { const l = pickL('fake'); setTimeout(() => { if (S.phase === 'question' && !b.dashed && !b.doubted) jsay(b, l); }, 900); }
     }
   }
   if (b.mode === 'follow' && b.nextMove === -1 && S.lives > 0 && performance.now() - b.lastFollow > 1600 && Math.abs(S.x - b.x) < 0.13) {
     b.lastFollow = performance.now();
-    if (jr() < .55) moveBot(b, b.x < 0.5 ? 0.6 + jr() * 0.3 : 0.1 + jr() * 0.3);
+    if (Math.random() < .55) moveBot(b, b.x < 0.5 ? 0.6 + Math.random() * 0.3 : 0.1 + Math.random() * 0.3);
     jsay(b, pickL('follow'));
   }
 }
-function jaeunReveal(b, ans, q) {
+function jaeunReveal(b, ans, q, mineOk) {
   b.a.el.classList.remove('dash');
   const goal = b.ans || ans;
-  if (sideOf(b.x) !== goal) { // 일찍 정답을 확인하면 : 순간이동
-    ghostAt(b); b.a.el.classList.add('warp'); moveBot(b, spotOn(goal)); void b.a.el.offsetWidth; setTimeout(() => b.a.el.classList.remove('warp'), 80);
-    setTimeout(() => sayOn(b.a, pickL('tele')), 150); sfxPop(b, '슉!');
+  if (sideOf(b.x) !== goal) { // 일찍 정답을 확인하면 : 순간이동 (틀리는 문제면 오답 쪽으로!)
+    ghostAt(b); warpTo(b, spotOn(goal)); setTimeout(() => sayOn(b.a, pickL('tele')), 150); sfxPop(b, '슉!');
   } else if (goal === ans) {
     if (b.recovered === 1) { b.recovered = 2; setTimeout(() => { if (S.phase === 'reveal') sayOn(b.a, JL.up[0]); }, 700); }
+    else if (mineOk && Math.random() < .35) setTimeout(() => { if (S.phase === 'reveal') sayOn(b.a, pickL('deny')); }, 900);
     else if (!b.dashed || jr() < .5) setTimeout(() => { if (S.phase === 'reveal') sayOn(b.a, pickL('win', q)); }, 700);
   }
-  if (b.recovered === 1 && goal === ans && sideOf(b.x) !== goal) b.recovered = 2;
 }
-function jaeunMock(q) { const b = S.jaeun; if (!b || !b.alive || b.down || jr() > .45) return; setTimeout(() => { if (S.phase === 'reveal') sayOn(b.a, pickL('mock', q)); }, 2000); }
+function jaeunFall(b, ans, bonus, mineOk) { // 재운이가 틀렸을 때 : 목숨 하나 줄고, 다 쓰면 진짜 탈락
+  if (bonus) return false;
+  b.jl--; setTimeout(() => jaeunTag(b, true), 450); b.beatenBy = mineOk;
+  if (b.jl > 0) { b.down = true; fallActor(b.a, 350); setTimeout(() => sayOn(b.a, pickL('down'), 'scream'), 420); return true; }
+  b.alive = false; fallActor(b.a, 350); setTimeout(() => sayOn(b.a, pickL('dead'), 'scream'), 420);
+  if (!(S.mode === 'solo' && !S.botWin && S.bots.filter(x => !x.master).every(x => !x.alive))) setTimeout(() => { const cr = document.querySelector('.wincrown'); if (cr) { cr.style.visibility = 'hidden'; setTimeout(() => cr.style.visibility = '', 4200); } }, 1490), setTimeout(() => celebrate({ img: IMG.b_jaeun_sad, title: '재운이 탈락!', name: '등·초본 마스터가 쓰러졌다', sub: S.lives > 0 ? '재운이보다 오래 버텼어요! 이대로 끝까지 가 보세요.' : '재운이도 결국 불구덩이로… 다음엔 이겨 봐요!', ms: 3800 }), 1500);
+  return true;
+}
+function jaeunMock(q, prevCombo, bonus) {
+  const b = S.jaeun; if (!b || !b.alive || b.down) return;
+  let k = '';
+  if (!bonus && S.lives === 1) k = 'last'; else if (prevCombo >= 3) k = 'cbreak'; else if (Math.random() < .45) k = 'mock';
+  if (!k) return; const l = pickL(k, q);
+  setTimeout(() => { if (S.phase === 'reveal') sayOn(b.a, l); }, 2000);
+}
 
 // ---------- 콤보 필살기 컷인 (소년만화풍) ----------
 const CUTIN = { 1: ['정답 연타!', '쾅!'], 2: ['필살! 편람 펼치기!!', '콰광!!'], 3: ['오의! 사례집 천 번 넘기기!!!', '콰과과광!!!'] };
@@ -934,13 +1024,13 @@ function setupStage() {
     S.bots = BOTS.map(([name, col], i) => {
       const a = makeActor('b_' + col + '_idle', col === 'jaeun' ? BOT_H * 1.06 : BOT_H, name, true);
       const b = { name, col, a, x: 0.08 + Math.random() * 0.84, foot: feet[i], alive: true, acc: 0.62 + Math.random() * 0.2, master: col === 'jaeun' };
-      if (b.master) { a.el.classList.add('master'); S.jaeun = b; b.jl = 2; b.missNo = 3 + Math.floor(Math.random() * 28); }
+      if (b.master) { a.el.classList.add('master'); S.jaeun = b; b.jl = JAEUN_LIVES; jaeunTag(b); }
       placeActor(a, b.x, b.foot); return b;
     });
   } else { // 함께 하기 : 재운이만 등장 (모두에게 같은 움직임)
     const a = makeActor('b_jaeun_idle', BOT_H * 1.06, '재운이', true); a.el.classList.add('master');
-    const b = { name: '재운이', col: 'jaeun', a, x: 0.5, foot: 80, alive: true, master: true, jl: 2, missNo: 3 + Math.floor(seeded((S.seed || 1) >>> 0)() * 28) };
-    S.jaeun = b; S.bots = [b]; placeActor(a, b.x, b.foot);
+    const b = { name: '재운이', col: 'jaeun', a, x: 0.5, foot: 80, alive: true, master: true, jl: JAEUN_LIVES };
+    S.jaeun = b; S.bots = [b]; jaeunTag(b); placeActor(a, b.x, b.foot);
   }
   S.player = makeActor('idle', PLAYER_H, myName(), false);
   S.player.el.classList.add('me'); { const sp = document.createElement('div'); sp.className = 'spot'; S.player.el.querySelector('.body').prepend(sp); }
@@ -1133,8 +1223,8 @@ function reveal() {
   const bub = $('bubble'); bub.className = 'bubble answer'; bub.textContent = bonus ? `정답은 ${ans}! (보너스라 아무도 안 떨어져요)` : `정답은 ${ans}!`;
   S.bots.forEach(b => {
     if (!b.alive) return; clearTimeout(b.tm);
-    if (b.master) jaeunReveal(b, ans, q);
-    if (sideOf(b.x) !== ans) { setImg(b.a, 'b_' + b.col + '_sad'); if (!bonus) { if (b.master && b.jl > 1) { b.jl--; b.down = true; b.beatenBy = playing && ok; fallActor(b.a, 350); setTimeout(() => sayOn(b.a, JL.down[0], 'scream'), 420); } else { b.alive = false; fallActor(b.a, 350); } } }
+    if (b.master) jaeunReveal(b, ans, q, playing && ok);
+    if (sideOf(b.x) !== ans) { setImg(b.a, 'b_' + b.col + '_sad'); if (!bonus) { if (b.master) jaeunFall(b, ans, bonus, playing && ok); else { b.alive = false; fallActor(b.a, 350); } } }
     else { setImg(b.a, 'b_' + b.col + '_joy'); b.a.el.classList.remove('cheer'); void b.a.el.offsetWidth; b.a.el.classList.add('cheer'); }
   });
   remote.forEach(r => {
@@ -1152,8 +1242,8 @@ function reveal() {
       else { beep(784, .12, 'triangle'); setTimeout(() => beep(1175, .16, 'triangle'), 120); }
       S.player.el.classList.remove('cheer'); void S.player.el.offsetWidth; S.player.el.classList.add('cheer');
     } else {
-      S.combo = 0; setCombo(S.player, 0, false);
-      S.wrong.push({ q, mine, bonus }); setImg(S.player, 'sad'); jaeunMock(q);
+      const pcb = S.combo; S.combo = 0; setCombo(S.player, 0, false);
+      S.wrong.push({ q, mine, bonus }); setImg(S.player, 'sad'); jaeunMock(q, pcb, bonus);
       if (bonus) beep(330, .2, 'sawtooth', .04);
       else { S.lives--; beep(220, .35, 'sawtooth', .05); setTimeout(() => beep(140, .5, 'sawtooth', .06), 350); fallActor(S.player, 450, true); }
     }
@@ -1177,7 +1267,7 @@ function reveal() {
   if (S.mode === 'multi' && !bonus) setTimeout(checkLastOne, 1600);
   if (S.mode === 'solo' && !bonus && playing && S.lives > 0 && !S.botWin && S.bots.length && S.bots.filter(b => !b.master).every(b => !b.alive)) {
     S.botWin = true;
-    setTimeout(() => (celebrate({ img: IMG.fight, title: '재운이와 1:1!', name: `${myName()} 생존`, sub: '다른 동료는 모두 탈락했어요. 등·초본 마스터 재운이는 절대 안 틀려요. 끝까지 버텨 보세요!', ms: 4200 }), S.jaeun && setTimeout(() => { const j = S.jaeun; if (!j || !j.alive) return; sayOn(j.a, JL.duo[0]); j.oneOnOne = 1; }, 4400)), 1300);
+    setTimeout(() => (S.jaeun && S.jaeun.alive ? (celebrate({ img: IMG.fight, title: '재운이와 1:1!', name: `${myName()} 생존`, sub: '다른 동료는 모두 탈락했어요. 등·초본 마스터 재운이와 단둘이 남았어요. 끝까지 버텨 보세요!', ms: 4200 }), setTimeout(() => { const j = S.jaeun; if (!j || !j.alive) return; sayOn(j.a, JL.duo[0]); j.oneOnOne = 1; }, 4400)) : celebrate({ img: IMG.joy, title: '최후의 1인!', name: `${myName()} 우승`, sub: `재운이까지 동료 ${S.bots.length}명을 모두 이겼어요. 계속 풀어서 점수를 올려 보세요!`, ms: 4200 })), 1300);
   }
 }
 function next() {
