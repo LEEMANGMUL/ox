@@ -902,7 +902,7 @@ const JL = {
   down: ['아 이거 작년 지침이었지!!', '아… 이거 지침 바뀐 거 몰랐네'],
   excuse: ['잠깐 겸손 연습 좀 했습니다', '방금 건 일부러 져 드린 거예요', '출제 오류네요. 이의신청 넣습니다', '컨디션 조절 중입니다', '불구덩이 온도 체크 좀 했어요'],
   lose: ['저보다 잘하시는 분 처음 봐요'], up: ['후… 이제 몸 좀 풀렸네요'],
-  many: ['아직 목숨 많아요. 걱정 마세요'], two: ['저 떨어지면 이 게임 끝나는 거 아시죠?'], one: ['…이제부터 진심 모드입니다'],
+  many: ['HP {hp}? 아직 풀피나 다름없죠'], two: ['저 떨어지면 이 게임 끝나는 거 아시죠?'], one: ['…이제부터 진심 모드입니다'],
   dead: ['이건… 꿈이야…', '오늘부로 편람 다시 정독합니다'],
   mock: ['그러니까 편람 보랬잖아요~', '오늘 저녁엔 편람 정독 확정입니다', '{src} 다시 보고 와요~', '괜찮아요, 저도 신규 땐…'],
 };
@@ -946,7 +946,7 @@ function jaeunPlan(b, ans) {
   if (b.down) { // 틀린 다음 문제 : 다시 나타나서 변명 + 남은 목숨 대사
     b.down = false; b.recovered = 1; reviveActor(b.a); warpTo(b, 0.3 + jr() * 0.4); b.hush = performance.now() + 5500;
     const l1 = b.beatenBy && jr() < .5 ? JL.lose[0] : pickL('excuse');
-    const l2 = b.jl === 1 ? JL.one[0] : b.jl === 2 ? JL.two[0] : (jr() < .5 ? JL.many[0] : '');
+    const l2 = b.jl === 1 ? JL.one[0] : b.jl === 2 ? JL.two[0] : (jr() < .5 ? JL.many[0].replace('{hp}', jaeunHPOf(b)) : '');
     setTimeout(() => { if (S.phase === 'question') sayOn(b.a, l1); }, 700);
     if (l2) setTimeout(() => { if (S.phase === 'question') sayOn(b.a, l2); }, 3300);
   }
