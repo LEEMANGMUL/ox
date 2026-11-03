@@ -19,7 +19,11 @@ h1 small{font-size:12px;font-weight:500;color:#BBD0EE;margin-left:8px;letter-spa
 #q{flex:1;min-width:0;font:inherit;font-size:16.5px;line-height:1.5;padding:11px 14px;border-radius:10px;border:0;outline:3px solid transparent;resize:none;min-height:52px;max-height:160px}
 #q:focus{outline-color:#8EA9DB}
 #go{font:inherit;font-weight:700;font-size:16px;padding:0 18px;border:0;border-radius:10px;background:#FFC000;color:#1F3864;cursor:pointer}
-.filters{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.filters{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.pick{margin-top:16px;display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px}
+.pq{display:inline-flex;align-items:center;gap:6px;font-size:15px;font-weight:900;color:#1F3864;background:#FFC000;padding:6px 14px 6px 12px;border-radius:8px;box-shadow:0 2px 0 #C99700}
+.pq::before{content:"";width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #1F3864;margin-top:2px}
+.ph{font-size:12.5px;color:#C9D8EE}
 .f{font:inherit;font-size:13px;padding:5px 12px;border-radius:99px;border:1px solid #6F87A8;background:transparent;color:#DCE6F2;cursor:pointer}
 .f.on{background:#fff;color:var(--navy);border-color:#fff;font-weight:700}
 main{padding:14px 16px 60px}
@@ -98,6 +102,7 @@ footer{font-size:11.5px;color:#999;text-align:center;padding:10px}
     <textarea id="q" rows="2" placeholder="예) 돈 빌려준 사람이 연락이 안 된다며 상대방 초본을 떼 달래요" enterkeyhint="search"></textarea>
     <button id="go" type="submit">찾기</button>
   </form>
+  <div class="pick"><span class="pq">어느 편람에서 찾을까요?</span><span class="ph">아래 버튼을 누르면 그 편람에서만 찾아요 · 전체는 모든 편람</span></div>
   <div class="filters" id="filters">
     <button class="f on" data-d="-1" type="button">전체</button>
     <button class="aib" id="aib" type="button"></button>
