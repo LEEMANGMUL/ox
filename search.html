@@ -27,6 +27,7 @@ h1 small{font-size:12px;font-weight:500;color:#BBD0EE;margin-left:8px;letter-spa
 .ph{font-size:12.5px;color:#C9D8EE}
 .f{font:inherit;font-size:13px;padding:5px 12px;border-radius:99px;border:1px solid #6F87A8;background:transparent;color:#DCE6F2;cursor:pointer}
 .f.on{background:#fff;color:var(--navy);border-color:#fff;font-weight:700}
+.f.on[data-d]:not([data-d="-1"])::before{content:'✔ ';color:#2E7D32}
 main{padding:14px 16px 60px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 14px}
 .chips span{font-size:12.5px;color:var(--gray);margin-right:2px;align-self:center}
@@ -182,7 +183,7 @@ body.pickmode .pickbar{display:flex}
     <textarea id="q" rows="2" placeholder="예) 돈 빌려준 사람이 연락이 안 된다며 상대방 초본을 떼 달래요" enterkeyhint="search"></textarea>
     <button id="go" type="submit">찾기</button>
   </form>
-  <div class="pick"><span class="pq">어느 편람에서 찾을까요?</span><span class="ph">아래 버튼을 누르면 그 편람에서만 찾아요 · 전체는 모든 편람</span></div>
+  <div class="pick"><span class="pq">어느 편람에서 찾을까요?</span><span class="ph">아래 버튼을 누르면 그 편람에서만 찾아요 · <b style="color:#FFE38A">여러 개 골라도 돼요</b> (다시 누르면 빠져요) · 전체는 모든 편람</span></div>
   <div class="filters" id="filters">
     <button class="f on" data-d="-1" type="button">전체</button>
     <button class="aib" id="aib" type="button"></button>
@@ -317,7 +318,7 @@ function eqBoost(it,q){const e=eqSim(it,q);it._eq=e;const h=docHint(q);const m=e
 const SYN=[[/몇\s?원|얼마(예요|에요|인가|나와|야)?|비용|돈\s?(내|들|받)/,['수수료']],[/고치|고쳐|틀렸|틀려|잘못\s?(적|썼|기재|들어)/,['정정']],[/지워|지우|없애|빼\s?주|빼달/,['삭제']],[/돌아가셨|돌아가신|별세/,['사망']],[/이사\s?(왔|가|갔|했|하)/,['전입']]];
 
 // ---------- 줄글 이해 + 검색 ----------
-let filt=-1,results=[],shown=0,terms=[],off=new Set(),lastQ='';
+let FSEL=new Set();const inF=it=>!FSEL.size||FSEL.has(it.d);let results=[],shown=0,terms=[],off=new Set(),lastQ='';
 function count(h,t){let c=0,i=h.indexOf(t);while(i>=0&&c<30){c++;i=h.indexOf(t,i+t.length)}return c}
 const NI=ITEMS.length;let avgLen=0;for(const it of ITEMS)avgLen+=it.n.length;avgLen/=NI;
 const dfCache={};function df(t){if(dfCache[t]==null){let d=0;for(const it of ITEMS)if(it.n.includes(t)||it.h.includes(t))d++;dfCache[t]=d}return dfCache[t]}
@@ -382,7 +383,7 @@ function search(q){
   for(const w of u.words){let wt=LOW[w]!=null?LOW[w]:(trigSet.has(w)?.5:.85);if(df(w)==0){const s2=w.slice(0,-1);if(s2.length>=2&&df(s2)>0){put(s2,wt*.8)}continue}put(w,wt)}
   for(const [re,ts] of SYN)if(re.test(q))ts.forEach(t=>put(t,.6));
   terms=[...W.keys()].filter(t=>df(t)>0).sort((a,b)=>b.length-a.length);
-  const pool=ITEMS.filter(it=>filt<0||it.d==filt);
+  const pool=ITEMS.filter(inF);
   const anchors=active.map((x,ci)=>[x.c.anchor,ci==0?1:.6]);
   const k1=1.2,b=.45;const uw=new Set(u.words);const hint=docHint(q);
   const scored=[];
@@ -448,7 +449,7 @@ async function run(keepOff){try{if(!NICK){showGate();return}}catch(e){}
     let sc=null;try{sc=await aiRank(q)}catch(e){console.error(e)}
     if(my!==runId)return;
     if(sc){
-      const pool=ITEMS.filter(it=>filt<0||it.d==filt);
+      const pool=ITEMS.filter(inF);
       const aiList=pool.slice().sort((a,b)=>sc[b.i]-sc[a.i]).slice(0,60);
       const K=12,fused=new Map();
       r.all.slice(0,150).forEach((x,k)=>fused.set(x[1],1/(K+k)));
@@ -498,7 +499,7 @@ const qel=document.getElementById('q');
 qel.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();qel.blur();run();placeRank();countSearch(qel.value.trim())}});
 qel.addEventListener('input',()=>{if(!qel.value.trim()){chips.style.display='';guess.innerHTML='';info.innerHTML='';list.innerHTML=''}qel.style.height='auto';qel.style.height=Math.min(qel.scrollHeight,160)+'px'});
 document.getElementById('form').addEventListener('submit',e=>{e.preventDefault();document.getElementById('q').blur();run();placeRank();countSearch&&countSearch(qel.value.trim())});
-document.getElementById('filters').addEventListener('click',e=>{const b=e.target.closest('.f');if(!b)return;filt=+b.dataset.d;document.querySelectorAll('.f').forEach(x=>x.classList.toggle('on',x===b));run(true)});
+document.getElementById('filters').addEventListener('click',e=>{const b=e.target.closest('.f');if(!b)return;const d=+b.dataset.d;if(d<0)FSEL.clear();else{FSEL.has(d)?FSEL.delete(d):FSEL.add(d);if(FSEL.size===DOCS.length)FSEL.clear()}document.querySelectorAll('.f').forEach(x=>{const xd=+x.dataset.d;x.classList.toggle('on',xd<0?!FSEL.size:FSEL.has(xd))});run(true)});
 QUICK.forEach(w=>{const b=document.createElement('button');b.className='chip';b.type='button';b.textContent=w;b.onclick=()=>{qel.value=w;qel.dispatchEvent(new Event('input'));run()};chips.appendChild(b)});
 list.addEventListener('click',e=>{const pkb=e.target.closest('.pk');if(pkb){e.stopPropagation();const it=results[+pkb.dataset.pk];if(it)pickAnswer(it.d,it.pp,it.t||it.s||it.c||'');return}if(e.target.closest('.more')){render(true);return}const c=e.target.closest('.card');if(c)openViewer(results[+c.dataset.i])});
 
