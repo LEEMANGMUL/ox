@@ -80,6 +80,24 @@ mark{background:var(--mark);color:inherit;padding:0 1px;border-radius:2px}
 .empty{text-align:center;color:var(--gray);padding:40px 10px;font-size:14.5px;line-height:1.8}
 footer{font-size:11.5px;color:#999;text-align:center;padding:10px}
 /* 뷰어 */
+.rank{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:18px 0 0;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.rank h3{margin:0 0 8px;font-size:15px;font-weight:900;color:var(--navy);letter-spacing:-.3px}
+.rank h3 small{font-size:11.5px;font-weight:500;color:var(--gray);margin-left:6px}
+.rank ol{margin:0;padding:0;list-style:none}
+.rank li{display:flex;align-items:center;gap:6px;font-size:13.5px;padding:4px 0;border-bottom:1px dashed #E6EAF0}
+.rank li:last-child{border-bottom:0}
+.rank .rk{width:24px;text-align:center;font-weight:900;color:#B08400;flex:none}
+.rank .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank .ct{color:var(--gray);font-size:12.5px;flex:none}
+.rank li.me .nm{font-weight:700;color:var(--blue)}
+.rank .empty{font-size:13px;color:var(--gray);padding:4px 0}
+.rank .me-line{font-size:12.5px;color:var(--gray);margin-top:10px;padding-top:8px;border-top:1px solid #E6EAF0;display:flex;gap:6px 8px;align-items:center;flex-wrap:wrap}
+.rank .me-line b{color:var(--navy)}
+.rank button{font:inherit;font-size:12.5px;border:1px solid var(--line);background:#fff;color:var(--navy);border-radius:99px;padding:3px 10px;cursor:pointer}
+.rank button.join{background:#FFC000;border-color:#FFC000;font-weight:700}
+.rank input{font:inherit;font-size:13px;padding:4px 8px;border:1px solid #8EA9DB;border-radius:6px;width:130px}
+.rank .note{font-size:11px;color:#999;flex-basis:100%}
+@media (min-width:1320px){.rank{position:fixed;top:18px;right:20px;width:240px;margin:0;z-index:5}}
 #viewer{position:fixed;inset:0;background:#525659;display:none;flex-direction:column;z-index:10}
 #viewer.open{display:flex}
 .vbar{background:var(--navy);color:#fff;display:flex;align-items:center;gap:6px;padding:8px 10px;flex-wrap:wrap}
@@ -115,8 +133,9 @@ footer{font-size:11.5px;color:#999;text-align:center;padding:10px}
   <div id="guess"></div>
   <div class="info" id="info"></div>
   <div id="list"></div>
+  <section class="rank" id="rank" aria-label="이번 달 편람왕"></section>
 </div></main>
-<footer id="foot">업무 용어 사전으로 문장을 짐작해서 찾아요 · 검색어는 이 컴퓨터 밖으로 보내지 않아요<br>답은 편람 원문 그대로예요 · 결과는 꼭 원문 쪽을 열어 확인하세요</footer>
+<footer id="foot">업무 용어 사전으로 문장을 짐작해서 찾아요 · 검색어는 이 컴퓨터 밖으로 보내지 않아요 (편람왕은 닉네임과 찾기 횟수만 저장)<br>답은 편람 원문 그대로예요 · 결과는 꼭 원문 쪽을 열어 확인하세요</footer>
 
 <div id="viewer">
   <div class="vbar">
@@ -388,9 +407,9 @@ else{let pref=null;try{pref=localStorage.getItem('sosAI')}catch(e){}
 {const fb=document.getElementById('filters'),aib=document.getElementById('aib');DOCS.forEach((d,i)=>{const b=document.createElement('button');b.className='f';b.type='button';b.dataset.d=i;b.textContent=d.name;fb.insertBefore(b,aib)})}
 guess.addEventListener('click',e=>{const o=e.target.closest('[data-k]');if(o){openViewer(results[+o.dataset.k]);return}const b=e.target.closest('.con');if(!b)return;const n=b.dataset.n;off.has(n)?off.delete(n):off.add(n);run(true)});
 const qel=document.getElementById('q');
-qel.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();qel.blur();run()}});
+qel.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();qel.blur();run();countSearch(qel.value.trim())}});
 qel.addEventListener('input',()=>{if(!qel.value.trim()){chips.style.display='';guess.innerHTML='';info.innerHTML='';list.innerHTML=''}qel.style.height='auto';qel.style.height=Math.min(qel.scrollHeight,160)+'px'});
-document.getElementById('form').addEventListener('submit',e=>{e.preventDefault();document.getElementById('q').blur();run()});
+document.getElementById('form').addEventListener('submit',e=>{e.preventDefault();document.getElementById('q').blur();run();countSearch&&countSearch(qel.value.trim())});
 document.getElementById('filters').addEventListener('click',e=>{const b=e.target.closest('.f');if(!b)return;filt=+b.dataset.d;document.querySelectorAll('.f').forEach(x=>x.classList.toggle('on',x===b));run(true)});
 QUICK.forEach(w=>{const b=document.createElement('button');b.className='chip';b.type='button';b.textContent=w;b.onclick=()=>{qel.value=w;qel.dispatchEvent(new Event('input'));run()};chips.appendChild(b)});
 list.addEventListener('click',e=>{if(e.target.closest('.more')){render(true);return}const c=e.target.closest('.card');if(c)openViewer(results[+c.dataset.i])});
@@ -443,6 +462,32 @@ document.addEventListener('keydown',e=>{if(!V.classList.contains('open'))return;
 let rsz;window.addEventListener('resize',()=>{if(!V.classList.contains('open'))return;clearTimeout(rsz);rsz=setTimeout(()=>showPage(false),250)});
 // 주소에 검색어가 있으면 바로 찾기
 const h=decodeURIComponent((location.hash.match(/q=([^&]+)/)||[])[1]||'');if(h){document.getElementById('q').value=h;run()}
+// ---------- 편람왕 랭킹 (닉네임·찾기 횟수만 저장) ----------
+const RANK={u:'https://rnnilzzxuwgetgyzyahq.supabase.co/rest/v1/rpc/',k:'sb_publishable_Vo-UdT2igge4d1L1Ex2YXQ_TlaeAyK1'};
+let NICK='',MYCNT=null,lastCountQ='',RROWS=undefined,JOIN=false;
+try{NICK=localStorage.getItem('jjk_nick')||''}catch(e){}
+async function rpc(f,b){const r=await fetch(RANK.u+f,{method:'POST',headers:{apikey:RANK.k,'Content-Type':'application/json'},body:JSON.stringify(b||{})});if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}
+async function loadRank(){try{RROWS=(await rpc('top_rank',{})).filter(r=>r&&r.nick&&!r.nick.startsWith('__'))}catch(e){RROWS=null}renderRank()}
+async function countSearch(q){if(!NICK||!q||q===lastCountQ)return;lastCountQ=q;try{MYCNT=await rpc('bump',{p_nick:NICK})}catch(e){}loadRank()}
+function renderRank(){const box=document.getElementById('rank');if(!box)return;const m=new Date().getMonth()+1;const MED=['🥇','🥈','🥉'];
+  let h=`<h3>🏆 ${m}월 편람왕<small>찾기 횟수 순</small></h3>`;
+  if(RROWS===undefined)h+='<div class="empty">순위를 불러오는 중…</div>';
+  else if(RROWS===null)h+='<div class="empty">지금은 순위를 불러올 수 없어요 (검색은 그대로 돼요)</div>';
+  else if(!RROWS.length)h+='<div class="empty">이번 달 기록이 아직 없어요. 첫 1위가 되어 보세요!</div>';
+  else h+='<ol>'+RROWS.map((r,i)=>`<li class="${r.nick===NICK?'me':''}"><span class="rk">${MED[i]||(i+1)}</span><span class="nm">${esc(r.nick)}</span><span class="ct">${r.cnt}회</span></li>`).join('')+'</ol>';
+  if(JOIN)h+=`<div class="me-line"><input id="nickin" maxlength="12" placeholder="닉네임 (12자까지)" value="${esc(NICK)}"><button type="button" class="join" data-a="save">저장</button><button type="button" data-a="cancel">취소</button><span class="note">실명 대신 별명을 쓰세요 · 닉네임을 바꾸면 이번 달 횟수는 새로 시작해요</span></div>`;
+  else if(NICK)h+=`<div class="me-line">내 닉네임 <b>${esc(NICK)}</b>${MYCNT!=null?` · 이번 달 ${MYCNT}회`:''}<button type="button" data-a="edit">바꾸기</button></div>`;
+  else h+=`<div class="me-line">닉네임을 정하면 찾기 횟수로 순위에 올라요<button type="button" class="join" data-a="edit">참여하기</button></div>`;
+  box.innerHTML=h;if(JOIN){const i=document.getElementById('nickin');i&&i.focus()}}
+document.getElementById('rank').addEventListener('click',e=>{const b=e.target.closest('button[data-a]');if(!b)return;const a=b.dataset.a;
+  if(a==='edit'){JOIN=true;renderRank();return}
+  if(a==='cancel'){JOIN=false;renderRank();return}
+  if(a==='save'){const v=(document.getElementById('nickin').value||'').trim().replace(/\s+/g,' ');if(!v||v.length>12||v.startsWith('__')){alertNick();return}
+    if(v!==NICK){NICK=v;MYCNT=null;lastCountQ='';try{localStorage.setItem('jjk_nick',v)}catch(e){}}JOIN=false;renderRank();loadRank()}});
+document.getElementById('rank').addEventListener('keydown',e=>{if(e.target.id==='nickin'&&e.key==='Enter'&&!e.isComposing){e.preventDefault();e.target.closest('.me-line').querySelector('[data-a=save]').click()}});
+function alertNick(){const i=document.getElementById('nickin');if(i){i.style.borderColor='#C00000';i.placeholder='1~12자로 적어 주세요';i.value='';i.focus()}}
+renderRank();loadRank();
+
 </script>
 </body>
 </html>
