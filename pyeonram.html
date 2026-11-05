@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>쪽집게 · 편람 몇 쪽인지 쪽! 집어 드림</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@600;900&display=swap" rel="stylesheet">
 <style>
 :root{--navy:#1F3864;--blue:#2F5597;--sky:#DDEBF7;--line:#D6DCE5;--bg:#F4F6FA;--ink:#222;--gray:#666;--mark:#FFE36E;--card:#fff}
 *{box-sizing:border-box}
@@ -177,6 +177,134 @@ body.pickmode .pickbar{display:flex}
 .gsubs{margin-top:8px;border-top:1px dashed #cfd6e4;padding-top:6px}.gsubs .sh{font-size:12.5px;color:#666;margin-bottom:3px}
 .gsub{margin:3px 0;border-radius:6px;background:#F4F6FB;padding:5px 9px}.gsub summary{cursor:pointer;font-size:14px;font-weight:600;color:#2a2a2a;list-style-position:inside}.gsub[open]{background:#EEF2FA}.gsub .ans,.gsub .snip{font-size:13.2px}
 .ask{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0 10px;padding:9px 11px;background:#FFF4E0;border:2px solid #F0A030;border-radius:10px;font-size:14px}.ask span{width:100%;font-weight:700;color:#7A4A00}.ask button{border:1px solid #E08A00;background:#fff;color:#7A4A00;border-radius:16px;padding:5px 12px;font-size:14px;font-weight:700;cursor:pointer}.ask button small{color:#B26B00;font-weight:600}.ask.on{background:#EAF2FF;border-color:#2F5597}.ask.on span{width:auto}.ask.on button{border-color:#2F5597;color:#2F5597}
+/* 시안 B · 확정일자인 — 공문 서식 칸 + 쪽 번호를 붉은 도장으로 */
+:root{--paper:#FFFFFF;--gov:#0B3A6F;--cell:#EEF1F5;--rule:#AEB7C4;--ink:#1A1F29;--soft:#5A6372;--seal:#C8241F}
+html,body{background:#E6E9EE;color:var(--ink)}
+header{background:var(--paper);color:var(--ink);padding-top:0;padding-bottom:0;border-bottom:3px double var(--gov)}
+header .wrap{border-left:1px solid var(--rule);border-right:1px solid var(--rule);padding:22px 22px 18px;background:#fff}
+h1{font-family:'Noto Serif KR',serif;font-weight:900;font-size:28px;color:var(--gov);letter-spacing:-.5px;border-bottom:2px solid var(--gov);padding-bottom:8px;display:flex;align-items:baseline;gap:10px}
+h1 small{color:var(--soft);font-family:'Noto Sans KR';font-size:12.5px;font-weight:500;margin-left:auto}
+.sub{color:var(--ink);font-family:'Noto Serif KR',serif;font-weight:600;font-size:16px;margin-top:10px}.sub b{color:var(--seal)}
+.src{color:var(--soft);font-size:12.5px;line-height:1.65}
+.sbox{margin-top:16px;gap:0;border:1px solid var(--gov)}
+.sbox::before{content:'민원 내용';flex:none;width:92px;background:var(--cell);border-right:1px solid var(--rule);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:var(--gov)}
+#q{border-radius:0;outline:0;font-size:16.5px}
+#q:focus{background:#FBFCFE}
+#go{border-radius:0;background:var(--gov);color:#fff;font-weight:700;padding:0 26px}
+.pick{margin-top:14px;border:1px solid var(--rule);border-bottom:0;background:var(--cell);padding:7px 10px;gap:4px 10px}
+.pq{background:none;box-shadow:none;color:var(--gov);padding:0;font-size:13.5px}.pq::before{display:none}
+.ph{color:var(--soft)}.ph b{color:var(--gov)!important}
+.filters{margin-top:0;border:1px solid var(--rule);padding:8px 10px;gap:4px 14px}
+.f{border:0;border-radius:0;background:none;color:var(--ink);padding:4px 2px;font-size:13.5px}
+.f::before{content:'☐ ';color:var(--soft)}
+.f.on{background:none;color:var(--gov);font-weight:700}
+.f.on::before,.f.on[data-d]:not([data-d="-1"])::before{content:'☑ ';color:var(--seal)}
+main .wrap{background:transparent}
+.chips span{color:var(--soft)}
+.chip{border-radius:0;border:1px solid var(--rule);color:var(--gov);background:#fff}
+.gbox{border-radius:0;border:1px solid var(--rule)}
+.gh{color:var(--gov)}
+.con{border-radius:0;background:var(--gov);border-color:var(--gov)}.con.off{border-radius:0}
+/* 처리 의견 칸 */
+.best{border-radius:0;border:1px solid var(--gov);box-shadow:none;background:#fff;padding:0;overflow:hidden}
+.bh{background:var(--gov);color:#fff;margin:0;padding:8px 14px;font-size:13.5px}.bh::before{content:''}
+.best>*:not(.bh){margin-left:16px;margin-right:16px}
+.bt{margin-top:12px;font-size:17px;padding-right:96px;position:relative}
+.best{position:relative}.bt{position:static!important}.bt .bpg{position:absolute;right:18px;top:8px;width:74px;height:74px;border:3px solid var(--seal);border-radius:50%;color:var(--seal);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif KR',serif;font-size:17px;font-weight:900;transform:rotate(-8deg);margin:0;background:#fff}
+.bbtns{margin-bottom:14px}
+.bsim{margin-bottom:12px}
+.bopen{border-radius:0;background:var(--gov)}
+.bnope{border-radius:0;background:#fff;color:var(--seal);border:1px solid var(--seal);box-shadow:none}
+.bnope small{background:var(--seal);color:#fff}
+/* 결과: 서식 행 + 도장 */
+.card{border-radius:0;border:1px solid var(--rule);border-left:1px solid var(--rule);padding:0;box-shadow:none;margin-bottom:14px;position:relative;background:#fff}
+.card:hover{box-shadow:none;background:#FBFCFE;z-index:1;outline:1px solid var(--gov)}
+.card .top{background:var(--cell);border-bottom:1px solid var(--rule);padding:6px 90px 6px 14px;gap:10px}
+.badge{border-radius:0;background:#fff!important;border:1px solid currentColor;font-weight:700}
+.card>*:not(.top){margin-left:14px;margin-right:14px}
+.card .ttl{margin-top:10px;padding-right:86px;font-size:16px}
+.pg{position:absolute;right:14px;top:-9px;width:62px;height:62px;border:2.5px solid var(--seal)!important;border-radius:50%;color:var(--seal)!important;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif KR',serif;font-size:15px;font-weight:900;transform:rotate(-8deg);background:#fff;z-index:2}
+.ans{border-radius:0;border-left:3px solid var(--gov);background:var(--cell);margin-bottom:6px}
+.ans b{color:var(--gov)}
+.why{margin-bottom:10px}
+.gsubs,.qcn,.oldn{margin-bottom:8px}
+.gsub{border-radius:0}
+mark{background:#FFF0A6}
+.ask{border-radius:0;background:#fff;border:1px solid var(--gov)}.ask span{color:var(--gov)}.ask button{border-radius:0;border-color:var(--gov);color:var(--gov)}
+.more{border-radius:0;border-color:var(--gov);color:var(--gov);margin-top:16px}
+/* 편람왕: 게시판 */
+.rank{background:#fff;color:var(--ink);border:1px solid var(--gov);border-radius:0;box-shadow:none;padding:0 0 12px}
+.rank::before{display:none}.rank .hof{display:none}
+.rank h3{background:var(--gov);-webkit-background-clip:initial;background-clip:initial;color:#fff;margin:0;padding:9px 14px;text-align:left;font-size:16px;font-family:'Noto Serif KR',serif}
+.rank .hsub{color:var(--soft);text-align:left;padding:6px 14px 0;margin-bottom:6px}
+.rank>*:not(h3):not(.hsub){margin-left:12px;margin-right:12px}
+.pod .st{border-radius:0;background:var(--cell);border:1px solid var(--rule);color:var(--gov)}
+.pod .p1 .st{background:#fff;border:2.5px solid var(--seal);color:var(--seal)}
+.pod .p1 .nm{color:var(--seal)}
+.pod .ct,.rank li .ct{color:var(--soft)}
+.rank ol{border-top:1px solid var(--gov)}
+.rank li{border-bottom:1px solid #E1E5EB}
+.rank .rk{color:var(--gov)}
+.rank li.none .nm,.rank li.none .ct,.pod .p.none .nm{color:#A3ABB8}
+.rank .me-line{border-top:1px solid var(--rule);color:var(--soft)}.rank .me-line b{color:var(--gov)}
+.rank button{border-radius:0;border-color:var(--gov);color:var(--gov)}
+footer{color:var(--soft)}
+/* B2: 가장 비슷한 결과를 짙은 남색 칸으로 */
+.best{background:var(--gov);color:#fff;border:0;border-left:8px solid var(--seal)}
+.bh{background:transparent;color:#BFD2EA;font-size:14px;padding:14px 16px 0;font-weight:700}
+.bt{color:#fff;margin-top:6px}
+.best .badge{background:transparent!important;color:#fff!important;border-color:rgba(255,255,255,.6)}
+.best .ans{background:rgba(255,255,255,.1);border-left:3px solid #fff;color:#EEF3FA}
+.best .ans b{color:#FFD45C}
+.best mark{background:rgba(255,212,92,.35);color:#fff}
+.bt .bpg{border-color:var(--seal);color:var(--seal);background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.25)}
+.bopen{background:#fff;color:var(--gov);font-weight:900}
+.bnope{background:var(--seal);border-color:var(--seal);color:#fff}
+.bnope small{background:#fff;color:var(--seal)}
+.bsim{color:#BFD2EA}.bsim a{color:#fff}
+@media (max-width:600px){.sbox::before{display:none}}
+.best .bh{padding-right:104px}
+
+/* B-2 나머지 화면 */
+.nkbox{background:#fff;color:var(--ink);border:1px solid var(--gov);border-top:6px solid var(--gov);border-radius:0;box-shadow:0 16px 40px rgba(0,0,0,.35)}
+.nkbox .hof{display:none}
+.nkbox h2{background:none;-webkit-background-clip:initial;background-clip:initial;color:var(--gov);font-family:'Noto Serif KR',serif}
+.nkbox p{color:var(--soft)}.nkbox p b{color:var(--seal)!important}
+.nkbox input{border:1px solid var(--gov);border-radius:0}
+.nkbox button{background:var(--gov);color:#fff;border-radius:0;box-shadow:none}
+.nkbox .gnote{color:var(--soft)}.nkbox .gerr{color:var(--seal)}
+.gate{background:rgba(11,30,58,.78)}
+.fbbar{border-radius:0}.fbbar .fbtn{border-radius:0}
+.pickbar{border-radius:0}.pickbar button{border-radius:0}
+.vbar{background:var(--gov)}.vb{border-radius:0}
+.f:focus-visible,.chip:focus-visible,button:focus-visible,#q:focus-visible{outline:3px solid #F2B705;outline-offset:2px}
+
+.rank button.join{background:var(--gov);color:#fff;border-color:var(--gov);box-shadow:none;border-radius:0}
+/* 동료 실무 */
+.notebar{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;margin:0 0 14px}
+.notebar button{font:inherit;font-size:14px;font-weight:700;padding:8px 14px;border:1px solid var(--gov);background:#fff;color:var(--gov);cursor:pointer}
+.notebar button:hover{background:var(--cell)}
+.notebar span{font-size:12.5px;color:var(--soft)}
+.nbox{border:1px solid #B08A2E;background:#FFFBEF;margin:0 0 12px}
+.nbh{background:#F3E6C2;color:#5A4410;font-weight:700;font-size:14px;padding:8px 14px;border-bottom:1px solid #D9C48A}.nbh small{font-weight:500;color:#7A6020}
+.note{padding:12px 16px;border-bottom:1px dashed #D9C48A}.note:last-child{border-bottom:0}
+.nsrc{font-size:12.5px;color:#6B5A2A}.nsrc b{display:inline-block;margin-left:4px;padding:1px 8px;border:1px solid #9A7A26;color:#5A4410;background:#fff}
+.ntt{font-size:16px;font-weight:700;margin:6px 0 4px;color:var(--ink)}
+.nbd{font-size:14px;line-height:1.7;color:#2C2A24;word-break:keep-all;overflow-wrap:anywhere}
+.nwarn{margin-top:8px;font-size:13px;font-weight:700;color:var(--seal)}
+.nmeta{margin-top:6px;font-size:12px;color:#8A7A50;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.nrep{margin-left:auto;font:inherit;font-size:12px;border:1px solid #C9B98A;background:#fff;color:#7A6020;padding:3px 10px;cursor:pointer}.nrep.ask2{border-color:var(--seal);color:var(--seal)}
+.nform{width:100%;max-width:520px;max-height:calc(100vh - 32px);overflow:auto;background:#fff;color:var(--ink);border:1px solid var(--gov);border-top:6px solid var(--gov);padding:20px 22px;box-shadow:0 16px 40px rgba(0,0,0,.35)}
+.nfh{font-family:'Noto Serif KR',serif;font-weight:900;font-size:21px;color:var(--gov)}
+.nfi{font-size:13.5px;line-height:1.65;color:var(--soft);margin:8px 0 14px}.nfi b{color:var(--seal)}
+.nform label{display:block;font-size:13.5px;font-weight:700;color:var(--gov);margin-bottom:10px}
+.nform label small{font-weight:500;color:var(--soft);margin-left:4px}
+.nform input,.nform textarea,.nform select{display:block;width:100%;margin-top:4px;font:inherit;font-size:15px;font-weight:400;padding:9px 10px;border:1px solid var(--rule);background:#fff;color:var(--ink);border-radius:0}
+.nform textarea{resize:vertical}
+.nerr{min-height:20px;font-size:13px;color:var(--seal);font-weight:700}
+.nbtns{display:flex;gap:8px;margin-top:6px}
+.nbtns button{font:inherit;font-size:15px;font-weight:700;padding:10px 20px;border:1px solid var(--gov);cursor:pointer;border-radius:0}
+#nsave{background:var(--gov);color:#fff}#nclose{background:#fff;color:var(--gov)}
 </style>
 </head>
 <body>
@@ -195,14 +323,32 @@ body.pickmode .pickbar{display:flex}
   </div>
 </div></header>
 <main><div class="wrap">
+  <div class="notebar"><button type="button" id="noteopen">✍ 편람에 없는 우리 동 실무 남기기</button><span>남긴 실무는 키워드로 검색하면 함께 보여요</span></div>
   <div class="chips" id="chips"><span>이렇게 물어보세요</span></div>
   <div id="guess"></div>
+  <div id="notes"></div>
   <div class="fbbar" id="fbbar" hidden></div>
   <div class="info" id="info"></div>
   <div id="askbar"></div>
   <div id="list"></div>
   <section class="rank" id="rank" aria-label="이번 달 편람왕"></section>
 </div></main>
+<div class="gate" id="ngate" hidden role="dialog" aria-modal="true" aria-labelledby="ntitle">
+  <form class="nform" id="nform" autocomplete="off">
+    <div class="nfh" id="ntitle">편람에 없는 실무 남기기</div>
+    <p class="nfi">우리 동에서 실제로 처리하는 방법이나 콜센터에서 받은 답변을 동료와 나눠요. 남긴 내용은 쪽집게를 쓰는 모든 사람에게 보여요.<br><b>다만 편람에 있는 내용은 아니에요. 꼭 근거를 확인하고 적용하세요.</b><br>이름·주민등록번호·전화번호 같은 개인정보는 적지 마세요.</p>
+    <label>제목<input id="nt" maxlength="60" placeholder="예) 외국인 배우자 등본 표기 문의가 많을 때"></label>
+    <label>검색 키워드 <small>쉼표로 나눠 적어요. 이 말로 검색하면 보여요</small><input id="nk" maxlength="100" placeholder="예) 외국인 배우자, 등본, 표기"></label>
+    <label>내용<textarea id="nb" rows="5" maxlength="600" placeholder="어떻게 처리하는지 적어 주세요 (600자까지)"></textarea></label>
+    <label>출처 <small>꼭 골라야 해요</small><select id="ns" required>
+      <option value="">출처를 고르세요</option>
+      <optgroup label="금천구 10개 동"><option>가산동 실무</option><option>독산1동 실무</option><option>독산2동 실무</option><option>독산3동 실무</option><option>독산4동 실무</option><option>시흥1동 실무</option><option>시흥2동 실무</option><option>시흥3동 실무</option><option>시흥4동 실무</option><option>시흥5동 실무</option></optgroup>
+      <option>행안부 콜센터 답변</option><option value="기타">기타 (사유 입력)</option></select></label>
+    <label id="nel" hidden>기타 출처 <small>어디서 확인했는지 적어요</small><input id="ne" maxlength="40" placeholder="예) 구청 민원여권과 안내"></label>
+    <div class="nerr" id="nerr"></div>
+    <div class="nbtns"><button type="submit" id="nsave">남기기</button><button type="button" id="nclose">닫기</button></div>
+  </form>
+</div>
 <div class="gate" id="gate" hidden role="dialog" aria-modal="true" aria-labelledby="gtitle">
   <div class="nkbox">
     <div class="gcrown">👑</div>
@@ -452,7 +598,7 @@ async function run(keepOff){try{if(!NICK){showGate();return}}catch(e){}
   if(!keepOff||q!==lastQ)off=new Set();lastQ=q;try{placeRank()}catch(e){}
   try{history.replaceState(null,'',q?'#q='+encodeURIComponent(q):location.pathname)}catch(e){}
   chips.style.display=q?'none':'';
-  if(!q){info.innerHTML='';list.innerHTML='';guess.innerHTML='';try{fbShow()}catch(e){}return}
+  if(!q){info.innerHTML='';list.innerHTML='';guess.innerHTML='';try{document.getElementById('notes').innerHTML=''}catch(e){}try{fbShow()}catch(e){}return}
   const r=search(q);results=r.list;const u=r.u;
   let aiNote='';
   ITEMS.forEach(it=>it.ai=false);
@@ -489,7 +635,7 @@ async function run(keepOff){try{if(!NICK){showGate();return}}catch(e){}
       `<div class="bbtns"><button type="button" class="bopen" data-k="0">이 쪽 열어 보기</button><button type="button" class="bnope" data-fb="send">👎 원하는 게 아니에요<small>+3점</small></button></div>`+
       (sim?`<div class="bsim">비슷한 경우 &nbsp;${sim}</div>`:'')+`</div>`+g;
   }
-  guess.innerHTML=g;
+  guess.innerHTML=g;try{renderNotes(q)}catch(e){}
   const cnts=DOCS.map((d,i)=>[d.short,results.filter(x=>x.d==i).length]).filter(x=>x[1]);
   if(!results.length){info.innerHTML='';list.innerHTML=`<div class="empty">‘${esc(q)}’에 맞는 곳을 찾지 못했어요.<br>업무 용어로 바꿔 보거나(예: 집주인 → 임대인), 낱말을 줄여 보세요.</div>`;return}
   info.innerHTML=`<b>${results.length}</b>건 · ${cnts.map(x=>x[0]+' '+x[1]).join(' · ')} <span style="color:#999">(맞을 가능성 높은 순${AI.state==='on'?' · AI+사전':''})</span>`;
@@ -574,6 +720,43 @@ document.addEventListener('keydown',e=>{if(!V.classList.contains('open'))return;
 let rsz;window.addEventListener('resize',()=>{if(!V.classList.contains('open'))return;clearTimeout(rsz);rsz=setTimeout(()=>showPage(false),250)});
 // 주소에 검색어가 있으면 바로 찾기
 const h=decodeURIComponent((location.hash.match(/q=([^&]+)/)||[])[1]||'');if(h){document.getElementById('q').value=h;run()}
+
+// ---------- 동료 실무 공유 (편람 밖 내용) ----------
+let NOTES=[];const REP=new Set();try{JSON.parse(localStorage.getItem('jjk_rep')||'[]').forEach(x=>REP.add(x))}catch(e){}
+async function loadNotes(){try{NOTES=(await rpc('list_notes',{})).filter(n=>n&&n.title);NOTES.forEach(n=>{n._n=norm(n.title+' '+n.keywords+' '+n.body);n._k=n.keywords.split(/[,，、;\n]/).map(k=>k.trim()).filter(Boolean).map(k=>k.split(/\s+/).map(w=>eqn(w)).filter(w=>w.length>=1))})}catch(e){NOTES=[]}if(lastQ)try{renderNotes(lastQ)}catch(e){}}
+function noteHits(q){if(!NOTES.length||!q)return[];const nq=eqn(fixTypo(q));const qb=bigr(nq);
+  return NOTES.filter(n=>!REP.has(n.id)).map(n=>{const kh=n._k.filter(ws=>ws.length&&ws.every(w=>nq.includes(w))).reduce((a,ws)=>a+ws.join('').length,0);
+    const tb=bigr(eqn(n.title+' '+n.keywords));let h=0;for(const g of qb)if(tb.has(g))h++;const dice=qb.size?2*h/(qb.size+tb.size):0;
+    return [n,kh+dice*4,kh]}).filter(x=>x[2]>=2||x[1]>=1.8).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0])}
+function renderNotes(q){const box=document.getElementById('notes');if(!box)return;const hs=noteHits(q);
+  if(!hs.length){box.innerHTML='';return}
+  box.innerHTML=`<div class="nbox"><div class="nbh">📝 편람에는 없지만 동료가 남긴 실무 <small>${hs.length}건</small></div>`+hs.map(n=>{const src=n.source==='기타'?('기타 · '+(n.source_etc||'')):n.source;const dt=(n.created_at||'').slice(0,10).replace(/-/g,'.');
+    return `<div class="note"><div class="nsrc">출처 <b>${esc(src)}</b></div><div class="ntt">${hlText(n.title)}</div><div class="nbd">${esc(n.body).replace(/\n/g,'<br>')}</div><div class="nwarn">⚠ 편람에 있는 내용은 아니에요. 꼭 근거를 확인하고 적용하세요.</div><div class="nmeta">${esc(n.nick)} · ${dt} · 키워드 ${esc(n.keywords)}<button type="button" class="nrep" data-rep="${n.id}">이상해요</button></div></div>`}).join('')+`</div>`}
+document.getElementById('notes').addEventListener('click',async e=>{const b=e.target.closest('[data-rep]');if(!b)return;const id=+b.dataset.rep;
+  if(!b.classList.contains('ask2')){b.classList.add('ask2');b.textContent='틀린 내용이면 한 번 더 눌러요';return}
+  REP.add(id);try{localStorage.setItem('jjk_rep',JSON.stringify([...REP]))}catch(err){}try{await rpc('report_note',{p_id:id})}catch(err){}renderNotes(lastQ)});
+const NG=document.getElementById('ngate'),NERR=document.getElementById('nerr');
+function openNote(){try{if(!NICK){showGate();return}}catch(e){}NERR.textContent='';NG.hidden=false;const q=qel.value.trim();const k=document.getElementById('nk');if(q&&!k.value)k.value='';setTimeout(()=>document.getElementById('nt').focus(),50)}
+document.getElementById('noteopen').onclick=openNote;
+document.getElementById('nclose').onclick=()=>{NG.hidden=true};
+NG.addEventListener('click',e=>{if(e.target===NG)NG.hidden=true});
+document.getElementById('ns').onchange=e=>{document.getElementById('nel').hidden=e.target.value!=='기타'};
+document.getElementById('nform').addEventListener('submit',async e=>{e.preventDefault();
+  const v=id=>document.getElementById(id).value.trim();const t=v('nt'),k=v('nk'),b=v('nb'),sv=v('ns'),et=v('ne');
+  const PII=/(\d{6}\s*-?\s*[1-4]\d{6})|(01[016789][\s-]?\d{3,4}[\s-]?\d{4})/;
+  if(t.length<2){NERR.textContent='제목을 2자 이상 적어 주세요.';return}
+  if(!k){NERR.textContent='검색 키워드를 하나 이상 적어 주세요.';return}
+  if(b.length<5){NERR.textContent='내용을 5자 이상 적어 주세요.';return}
+  if(!sv){NERR.textContent='출처를 골라 주세요.';return}
+  if(sv==='기타'&&et.length<2){NERR.textContent='기타를 고르면 어디서 확인했는지 적어 주세요.';return}
+  if(PII.test(t+' '+k+' '+b+' '+et)){NERR.textContent='주민등록번호나 전화번호처럼 보이는 숫자가 있어요. 지우고 다시 남겨 주세요.';return}
+  const btn=document.getElementById('nsave');btn.disabled=true;NERR.textContent='남기는 중…';
+  try{await rpc('add_note',{p_nick:NICK,p_title:t,p_keywords:k,p_body:b,p_source:sv,p_source_etc:sv==='기타'?et:null});
+    ['nt','nk','nb','ne'].forEach(id=>document.getElementById(id).value='');document.getElementById('ns').value='';document.getElementById('nel').hidden=true;
+    NG.hidden=true;await loadNotes();const bar=document.getElementById('fbbar');bar.className='fbbar done';bar.hidden=false;bar.innerHTML=`✔ 실무를 남겼어요. ‘${esc(k.split(/[,，]/)[0].trim())}’로 검색하면 함께 보여요.`;bar.scrollIntoView({block:'nearest'})}
+  catch(err){NERR.textContent=/limit/.test(String(err))?'하루에 10건까지 남길 수 있어요.':'남기지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.'}
+  finally{btn.disabled=false}});
+setTimeout(loadNotes,0);
 // ---------- 편람왕 랭킹 (닉네임·찾기 횟수만 저장) ----------
 const RANK={u:'https://rnnilzzxuwgetgyzyahq.supabase.co/rest/v1/rpc/',k:'sb_publishable_Vo-UdT2igge4d1L1Ex2YXQ_TlaeAyK1'};
 let NICK='',MYCNT=null,lastCountQ='',RROWS=undefined,JOIN=false;
