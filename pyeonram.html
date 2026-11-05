@@ -169,7 +169,7 @@ body.pickmode .pickbar{display:flex}
 #vscroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px 0}
 #pagebox{position:relative;margin:0 auto;background:#fff;box-shadow:0 2px 14px rgba(0,0,0,.4)}
 #pagebox canvas{display:block}
-.hl{position:absolute;background:rgba(255,214,0,.42);border-bottom:2px solid #E0A800;pointer-events:none;border-radius:2px}
+.hl{position:absolute;background:rgba(255,220,0,.2);pointer-events:none;border-radius:2px}#pagebox.nohl .hl{display:none}.vb.fsw.off{background:#55627a}
 #vmsg{color:#fff;text-align:center;padding:40px 10px;font-size:14px}
 @media (max-width:560px){h1{font-size:19px}h1 small{display:block;margin:2px 0 0}#q{font-size:16px}.vbar .vt{order:-1;flex-basis:100%}}
 .card .qcn{font-size:12.5px;color:#2F5597;margin-top:4px;font-weight:600}
@@ -225,6 +225,7 @@ body.pickmode .pickbar{display:flex}
     <button class="vb" id="vzo" title="작게">－</button>
     <button class="vb" id="vzi" title="크게">＋</button>
     <a class="vb" id="vorig" target="_blank" rel="noopener" title="PDF 원본을 새 창으로">원본</a>
+    <button class="vb fsw" id="vhl" type="button" title="형광펜 켜기/끄기">🖍 형광펜 끄기</button>
     <button class="vb pkv" id="vpick" type="button">📌 이 쪽이 정답</button>
     <button class="vb x" id="vclose">닫기</button>
   </div>
@@ -525,7 +526,7 @@ list.addEventListener('click',e=>{const on=e.target.closest('.oldn');if(on){e.st
 
 // ---------- PDF 보기 ----------
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-const pdfCache={};let cur=null,zoom=1,rtask=null;
+const pdfCache={};let cur=null,zoom=1,rtask=null;let SHOWHL=true;try{SHOWHL=localStorage.getItem('jjk_hl')!=='0'}catch(e){}
 const V=document.getElementById('viewer'),box=document.getElementById('pagebox'),vmsg=document.getElementById('vmsg'),vs=document.getElementById('vscroll');
 function partOf(d,p){return DOCS[d].parts.find(x=>p>=x.a&&p<=x.b)||DOCS[d].parts[0]}
 function getPdf(f){if(!pdfCache[f])pdfCache[f]=pdfjsLib.getDocument({url:encodeURI(f),disableAutoFetch:true}).promise.catch(e=>{delete pdfCache[f];throw e});return pdfCache[f]}
@@ -558,9 +559,11 @@ async function showPage(scrollToHit){
     for(const [k,a,b] of spans){const x=tc.items[k];const L=Math.max(x.str.length,1);const tx=pdfjsLib.Util.transform(vp.transform,x.transform);const fh=Math.hypot(tx[2],tx[3]);const w=x.width*scale;
       const el=document.createElement('div');el.className='hl';const cw=w/L;el.style.left=(tx[4]+cw*(a-.35))+'px';el.style.top=(tx[5]-fh*.95)+'px';el.style.width=(cw*(b-a+.7))+'px';el.style.height=(fh*1.15)+'px';box.appendChild(el);
       if(first===null||tx[5]<first)first=tx[5]}
+    box.classList.toggle('nohl',!SHOWHL);
     if(scrollToHit&&first!==null)vs.scrollTop=Math.max(0,first-vs.clientHeight*.3);else if(scrollToHit)vs.scrollTop=0;
   }catch(e){if(e&&e.name==='RenderingCancelledException')return;vmsg.innerHTML='PDF를 불러오지 못했어요. 인터넷 연결을 확인하거나 <b>원본</b> 버튼을 눌러 보세요.'}
 }
+const vh=document.getElementById('vhl');function vhUI(){vh.textContent=SHOWHL?'🖍 형광펜 끄기':'🖍 형광펜 켜기';vh.classList.toggle('off',!SHOWHL)}vhUI();vh.onclick=()=>{SHOWHL=!SHOWHL;try{localStorage.setItem('jjk_hl',SHOWHL?'1':'0')}catch(e){}vhUI();box.classList.toggle('nohl',!SHOWHL)};
 document.getElementById('vclose').onclick=()=>{if(history.state&&history.state.v)history.back();else closeViewer()};
 window.addEventListener('popstate',()=>{if(V.classList.contains('open'))closeViewer()});
 document.getElementById('vprev').onclick=()=>{if(cur.p>1){cur.p--;showPage(true)}};
