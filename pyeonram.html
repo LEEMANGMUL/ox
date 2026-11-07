@@ -384,7 +384,7 @@ main .wrap{background:transparent}
 .snip{color:#3A3A3C}.snip+.snip{border-top:1px solid var(--hair)}
 .ans{border:0;border-left:0;border-radius:12px;background:var(--bg);padding:10px 14px;color:#3A3A3C}.ans b{color:var(--ink)}
 .aitag{border-radius:99px;background:var(--acct);color:var(--acc)}
-.why{color:#8E8E93}
+.why{color:#6E6E73}
 mark{background:rgba(255,214,10,.4);border-radius:3px}
 .qcn{color:var(--acc)}
 .oldn{border-left:0;border-radius:12px;background:var(--redt);color:#B3261E}
@@ -392,7 +392,7 @@ mark{background:rgba(255,214,10,.4);border-radius:3px}
 .gsubs{border-top:1px solid var(--hair)}
 .gsub{border-radius:12px;background:var(--bg)}.gsub[open]{background:#EFEFF2}.gsub summary{color:var(--ink)}
 .gbox{border-radius:18px;border:0;box-shadow:var(--sh);padding:14px 16px}
-.con{border-radius:99px;background:var(--acc);border:0}.con.off{background:#fff;color:#8E8E93;box-shadow:0 0 0 1px var(--hair);border:0}
+.con{border-radius:99px;background:var(--acc);border:0}.con.off{background:#fff;color:#6E6E73;box-shadow:0 0 0 1px var(--hair);border:0}
 .gw b{background:var(--bg)}
 .more{border:0;border-radius:13px;background:var(--acct);color:var(--acc);font-size:15px;font-weight:600;padding:13px 32px;margin-top:16px}.more:hover{background:#D6E7FB}
 .ask{border-radius:18px;border:0;background:#fff;box-shadow:var(--sh);padding:12px 14px}.ask span{color:var(--ink)}
@@ -411,7 +411,7 @@ mark{background:rgba(255,214,10,.4);border-radius:3px}
 .ckit.no>span:first-child::before{color:var(--red)}
 .cksrc{background:var(--bg);color:var(--acc);border-radius:99px;padding:2px 10px}.cksrc.jb{color:var(--soft)}
 .cklocal{background:#0B7285;border-radius:99px;padding:1px 8px}
-.ckfoot{border-top:1px solid var(--hair);padding:12px 18px 14px;color:#8E8E93}
+.ckfoot{border-top:1px solid var(--hair);padding:12px 18px 14px;color:#6E6E73}
 .ckcopy{background:var(--acc);border-radius:12px;padding:10px 18px;font-size:14px;font-weight:600}
 .ckgh{color:var(--ink)}
 .pginfo{font-size:15px}.pgbad{border-radius:12px}
@@ -462,7 +462,7 @@ body.pickmode .card{outline:2px solid #34C759;outline-offset:2px}
 .vb{border-radius:10px;background:rgba(255,255,255,.14);color:#fff;font-weight:600}
 .vb.x{background:var(--acc);color:#fff}.vb.fsw.off{background:rgba(255,255,255,.07);opacity:.75}
 #pagebox{box-shadow:0 6px 30px rgba(0,0,0,.45)}
-footer{color:#8E8E93}
+footer{color:#6E6E73}
 .f:focus-visible,.chip:focus-visible,button:focus-visible,#q:focus-visible,a:focus-visible{outline:3px solid rgba(0,113,227,.45);outline-offset:2px}
 @media (max-width:560px){h1{font-size:30px}header .wrap{padding:26px 16px 4px}main{padding:12px 16px 80px}.sub{font-size:17px}.best{padding:18px 18px 16px;border-radius:22px}.bt{font-size:18px}.sbox{border-radius:20px}#go{padding:0 20px}}
 @media (prefers-reduced-motion:reduce){.card,.card:hover{transition:none;transform:none}}
@@ -475,6 +475,37 @@ header{padding:0 20px}header .wrap{padding:34px 0 6px}
 .gh{color:var(--ink);font-size:14px}
 @media (max-width:560px){header{padding:0 16px}header .wrap{padding:26px 0 4px}}
 @media (min-width:1320px){header,main,footer{padding-right:330px}}
+/* ===== 큰 글씨판: 전체 110% + 제목·설명 키움, 회색 진하게 ===== */
+:root{--soft:#4A4A4F}
+body>*:not(#viewer):not(script){zoom:1.1}
+h1{font-size:46px}h1 small{font-size:16px;color:var(--soft)}
+.sub{font-size:22px}
+.src{font-size:15.5px;line-height:1.75;color:var(--soft);max-width:720px}
+#q{font-size:18px}#go{font-size:18px}
+.pghint{font-size:14.5px;line-height:1.75;color:var(--soft)}
+.ckbtn,.notebar button{font-size:16px}
+.pq{font-size:17px}.ph{font-size:14.5px;line-height:1.7;color:var(--soft)}
+.f{font-size:15.5px}
+.chips span,.notebar span{font-size:14.5px;color:var(--soft)}.chip{font-size:15px}
+.info{font-size:15.5px;color:var(--soft)}
+.path{font-size:14px;color:var(--soft)}.badge{font-size:14px}
+.card .pg,.pg{font-size:18px}
+.card .ttl{font-size:18px}
+.snip{font-size:15.5px;line-height:1.75;color:#2C2C2E}.ans{font-size:15.5px;line-height:1.75;color:#2C2C2E}
+.why{font-size:13.5px;color:var(--soft)}.qcn{font-size:14px}.oldn{font-size:14.5px}
+.gsub summary{font-size:15px}.gsub .ans,.gsub .snip{font-size:14.5px}
+.gh{font-size:15px}.gw{font-size:14px;color:var(--soft)}.con{font-size:14.5px}
+.bt{font-size:21px}.bh{font-size:14.5px;color:#C7C7CC}.bsim{font-size:14px;color:#C7C7CC}
+.bopen,.bnope{font-size:17px}.more{font-size:16px}
+.ask{font-size:15px}.ask button{font-size:15px}
+.ckit{font-size:15.5px;line-height:1.65}.cksec{font-size:14.5px}.cksrc{font-size:13px}.ckrn{font-size:14.5px;color:var(--soft)}
+.ckfoot{font-size:13px;color:var(--soft)}.ckcard>summary{font-size:16px}.ckcopy{font-size:15px}
+.rank li{font-size:14px}.rank .hsub,.pod .ct,.rank li .ct{font-size:13px;color:var(--soft)}
+.nfi,.nkbox p{font-size:15px}.nkbox .gnote{font-size:13px}.nform label{font-size:14.5px}
+.nbd{font-size:15px}.nsrc{font-size:13.5px}.ntt{font-size:17px}
+footer{font-size:13px;color:#636366;line-height:1.7}
+.fbbar{font-size:15.5px}
+@media (max-width:560px){h1{font-size:36px}.sub{font-size:19px}header .wrap{padding-top:24px}.bt{font-size:19px}}
 </style>
 </head>
 <body>
