@@ -173,7 +173,7 @@ body.pickmode .pickbar{display:flex}
 #vmsg{color:#fff;text-align:center;padding:40px 10px;font-size:14px}
 @media (max-width:560px){h1{font-size:19px}h1 small{display:block;margin:2px 0 0}#q{font-size:16px}.vbar .vt{order:-1;flex-basis:100%}}
 .card .qcn{font-size:12.5px;color:#2F5597;margin-top:4px;font-weight:600}
-.oldn{margin:6px 0 2px;padding:7px 10px;background:#FDECEA;border-left:3px solid #D32F2F;border-radius:6px;font-size:13px;color:#8B1A1A;line-height:1.5;cursor:pointer}.oldn u{font-weight:700;white-space:nowrap}
+.oldn{margin:6px 0 2px;padding:7px 10px;background:#FDECEA;border-left:3px solid #D32F2F;border-radius:6px;font-size:13px;color:#8B1A1A;line-height:1.5;cursor:pointer}.oldn u{font-weight:700;white-space:nowrap}.oldn.twn{background:#EAF1FA;border-left-color:#0B3A6F;color:#0B3A6F}
 .gsubs{margin-top:8px;border-top:1px dashed #cfd6e4;padding-top:6px}.gsubs .sh{font-size:12.5px;color:#666;margin-bottom:3px}
 .gsub{margin:3px 0;border-radius:6px;background:#F4F6FB;padding:5px 9px}.gsub summary{cursor:pointer;font-size:14px;font-weight:600;color:#2a2a2a;list-style-position:inside}.gsub[open]{background:#EEF2FA}.gsub .ans,.gsub .snip{font-size:13.2px}
 .ask{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0 10px;padding:9px 11px;background:#FFF4E0;border:2px solid #F0A030;border-radius:10px;font-size:14px}.ask span{width:100%;font-weight:700;color:#7A4A00}.ask button{border:1px solid #E08A00;background:#fff;color:#7A4A00;border-radius:16px;padding:5px 12px;font-size:14px;font-weight:700;cursor:pointer}.ask button small{color:#B26B00;font-weight:600}.ask.on{background:#EAF2FF;border-color:#2F5597}.ask.on span{width:auto}.ask.on button{border-color:#2F5597;color:#2F5597}
@@ -592,15 +592,23 @@ function snippets(it){
   return got;
 }
 function oldNote(it){return it.old?`<div class="oldn" data-go="${it.old[1]}:${it.old[2]}">⚠ 지금 기준과 달라요: ${esc(it.old[0])} <u>${DOCS[it.old[1]].short} ${it.old[2]}쪽 보기 ›</u></div>`:''}
+let TWN=null;
+function twinOf(it){
+  if(!TWN){TWN=new Map();const n2=t=>(t||'').replace(/^Q\s*[\d\-]*\.?\s*/,'').replace(/\([^)]*\)/g,'').replace(/[^가-힣A-Za-z0-9]/g,'');
+    const cand=ITEMS.filter(x=>!x.hd&&(x.d==5||x.d==6)&&x.t);const B=new Map(cand.map(x=>[x,bigr(n2(x.t))]));
+    const dice=(a,b)=>{let h=0;for(const g of a)if(b.has(g))h++;return 2*h/(a.size+b.size)};
+    for(const a of cand){let bt=null,bs=.55;for(const c of cand){if(c.d===a.d)continue;const v=dice(B.get(a),B.get(c));if(v>=bs){bs=v;bt=c}}if(bt)TWN.set(a,bt)}}
+  return TWN.get(it)||null}
+function twinNote(it){const t=twinOf(it);if(!t)return'';return `<div class="oldn twn" data-go="${t.d}:${t.pp}">🔗 같은 내용이 ${esc(DOCS[t.d].short)} ${t.pp}쪽에도 있어요 <u>보기 ›</u></div>`}
 function subHtml(g){if(!g||!g.subs.length)return'';const it0=results[g.i];return `<div class="gsubs"><div class="sh">📄 같은 ${it0.pp}쪽에 이런 내용도 있어요 (${g.subs.length})</div>`+g.subs.map(j=>{const s=results[j];const t=s.t||s.s||s.c||'';return `<details class="gsub"><summary>${hlText(t.replace(/^Q\.\s*/,''))}</summary>${s.ans?`<div class="ans"><b>${s.d==1?'회신':s.qc?'답(요약)':'답'}</b>${hlText(s.ans)}</div>`:`<div class="snip">${snippets(s)[0]}</div>`}${oldNote(s)}</details>`}).join('')+`</div>`}
 function card(it,idx,g){
   const path=[it.c,it.s].filter(Boolean).join(' › ');
   const title=it.t||it.s||it.c||'';
   return `<div class="card d${it.d}" data-i="${idx}"><div class="top"><span class="badge">${DOCS[it.d].name}</span><span class="path">${esc(it.t?path:it.c)}</span><span class="pg">${it.pp}쪽</span></div>`+
-    (title?`<div class="ttl">${hlText(title)}${it.ai?'<span class="aitag">AI 추천</span>':''}</div>`:'')+(it.ans?`<div class="ans"><b>${it.d==1?'회신':it.qc?'답(요약)':'답'}</b>${hlText(it.ans)}</div>`+oldNote(it)+(it.qc?`<div class="qcn">📖 눌러서 ${it.pp}쪽 원문 확인</div>`:''):'')+(it.ans?[]:snippets(it)).map(s=>`<div class="snip">${s}</div>`).join('')+(it.why&&it.why.length?`<div class="why">겹친 말 ${it.why.map(w=>'<b>'+esc(disp(w))+'</b>').join(' · ')}</div>`:'')+subHtml(g)+`<button type="button" class="pk" data-pk="${idx}">✔ 이게 정답이에요</button></div>`;
+    (title?`<div class="ttl">${hlText(title)}${it.ai?'<span class="aitag">AI 추천</span>':''}</div>`:'')+(it.ans?`<div class="ans"><b>${it.d==1?'회신':it.qc?'답(요약)':'답'}</b>${hlText(it.ans)}</div>`+oldNote(it)+twinNote(it)+(it.qc?`<div class="qcn">📖 눌러서 ${it.pp}쪽 원문 확인</div>`:''):'')+(it.ans?[]:snippets(it)).map(s=>`<div class="snip">${s}</div>`).join('')+(it.why&&it.why.length?`<div class="why">겹친 말 ${it.why.map(w=>'<b>'+esc(disp(w))+'</b>').join(' · ')}</div>`:'')+subHtml(g)+`<button type="button" class="pk" data-pk="${idx}">✔ 이게 정답이에요</button></div>`;
 }
 const list=document.getElementById('list'),info=document.getElementById('info');
-let GRP=[];function groupRes(){const m=new Map();GRP=[];results.forEach((it,i)=>{const k=it.d+':'+it.pp;if(m.has(k))m.get(k).subs.push(i);else{const g={i,subs:[]};m.set(k,g);GRP.push(g)}})}
+let GRP=[];function groupRes(){const m=new Map();GRP=[];const leads=new Set();results.forEach((it,i)=>{const k=it.d+':'+it.pp;if(m.has(k))m.get(k).subs.push(i);else{const tw=twinOf(it);if(tw&&leads.has(tw.d+':'+tw.pp))return;leads.add(k);const g={i,subs:[]};m.set(k,g);GRP.push(g)}})}
 function render(more){
   const N=30;if(!more){shown=0;list.innerHTML='';groupRes()}
   const part=GRP.slice(shown,shown+N);
@@ -651,7 +659,7 @@ async function run(keepOff){try{if(!NICK){showGate();return}}catch(e){}
     const sim=results.slice(1,4).map((x,k)=>`<a data-k="${k+1}">${esc(DOCS[x.d].short)} ${x.pp}쪽 · ${esc(lab(x).replace(/^사례 \d+\.\s*(\([^)]*\)\s*)?/,'').replace(/^질의 \d+\.\s*/,'').slice(0,34))}</a>`).join(' &nbsp;·&nbsp; ');
     g=`<div class="best d${b.d}"><div class="bh">${AI.state==='on'?'<span class="ai">AI</span>':''}말씀하신 상황은 이 경우와 가장 비슷해 보여요</div>`+
       `<div class="bt"><span class="badge">${esc(DOCS[b.d].name)}</span>${esc(lab(b))}<span class="bpg">${b.pp}쪽</span></div>`+
-      (b.ans?`<div class="ans"><b>${b.d==1?'회신':b.qc?'답(요약)':'답'}</b>${hlText(b.ans)}</div>`:'')+oldNote(b)+
+      (b.ans?`<div class="ans"><b>${b.d==1?'회신':b.qc?'답(요약)':'답'}</b>${hlText(b.ans)}</div>`:'')+oldNote(b)+twinNote(b)+
       `<div class="bbtns"><button type="button" class="bopen" data-k="0">이 쪽 열어 보기</button><button type="button" class="bnope" data-fb="send">👎 원하는 게 아니에요<small>+3점</small></button></div>`+
       (sim?`<div class="bsim">비슷한 경우 &nbsp;${sim}</div>`:'')+`</div>`+g;
   }
