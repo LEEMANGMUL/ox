@@ -583,34 +583,28 @@ body.seoopen{overflow:hidden}
 /* ---- r3: 첫 화면 정리 ---- */
 .books-wrap{margin:16px 0 4px}
 .bhint{font-size:14px;color:var(--soft);margin:0 2px 6px}
-.filters{display:flex;flex-wrap:wrap;gap:6px 4px;align-items:flex-end;border:0;padding:6px 0 10px;margin:0;border-bottom:3px solid #E3E3E8}
-.filters .f{--bk:#0071E3;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:7px;width:80px;padding:6px 2px 4px;border:0;border-radius:14px;background:transparent;color:var(--ink);font:inherit;font-size:14px;font-weight:600;line-height:1.25;cursor:pointer;white-space:normal;text-align:center;transition:transform .15s}
-.filters .f:hover{background:rgba(0,0,0,.04)}
-.filters .f .bl{font-size:14px;font-weight:600;color:var(--soft);min-height:35px;display:block}
-.filters .f.on .bl{color:var(--ink);font-weight:800}
-.filters .f .bk{position:relative;display:block;width:42px;height:56px;border-radius:3px 8px 8px 3px;
- background:linear-gradient(#fffd,#fffd) 14px 14px/21px 3px no-repeat,linear-gradient(#fff9,#fff9) 14px 21px/15px 3px no-repeat,linear-gradient(#fff7,#fff7) 14px 40px/21px 8px no-repeat,linear-gradient(90deg,rgba(0,0,0,.28) 0 7px,rgba(255,255,255,.22) 7px 9px,transparent 9px),var(--bk);
- box-shadow:0 3px 6px rgba(0,0,0,.22),inset -3px 0 0 rgba(0,0,0,.12);transition:transform .15s,box-shadow .15s}
-.filters .f:hover .bk{transform:translateY(-2px)}
-.filters .f.on .bk{transform:translateY(-5px);box-shadow:0 10px 14px rgba(0,0,0,.28),0 0 0 3px #fff,0 0 0 5px var(--acc)}
-.filters .f.on .bk::after{content:"";position:absolute;top:-2px;right:6px;width:9px;height:17px;background:#FF3B30;clip-path:polygon(0 0,100% 0,100% 100%,50% 76%,0 100%)}
-.filters .f[data-d="0"]{--bk:#0071E3}.filters .f[data-d="1"]{--bk:#FF9500}.filters .f[data-d="2"]{--bk:#2FB458}.filters .f[data-d="3"]{--bk:#AF52DE}
-.filters .f[data-d="4"]{--bk:#D99A00}.filters .f[data-d="5"]{--bk:#0A9FB2}.filters .f[data-d="6"]{--bk:#1F8A6A}.filters .f[data-d="7"]{--bk:#FF3B30}
-.filters .f[data-d="-1"]{--bk:#3A3A3C}
-.filters .f[data-d="-1"] .bk{width:46px;background:linear-gradient(90deg,#FF9500 0 9px,#0071E3 9px 18px,#2FB458 18px 27px,#AF52DE 27px 36px,#FF3B30 36px 46px);border-radius:3px 3px 3px 3px;height:52px;margin-top:4px;box-shadow:0 3px 6px rgba(0,0,0,.22)}
-.filters .f[data-d="-1"] .bk::after{display:none}
-.filters .f.fnote .bk{background:linear-gradient(#0002,#0002) 0 0/100% 10px no-repeat,#FFD60A;border-radius:3px;width:46px;height:52px;margin-top:4px;clip-path:polygon(0 0,100% 0,100% 80%,80% 100%,0 100%)}
-.filters .f.fnote .bk::after{display:none}
-.filters .f.fnote.on .bk{box-shadow:none}
-.filters .f.fnote small{background:#E5E5EA;color:var(--soft);border-radius:99px;padding:0 6px;font-size:12px;font-weight:700}
-.filters .f.fnote.on{background:rgba(255,214,10,.2)}
-.filters .f[data-d="-1"].on{background:rgba(0,113,227,.08)}
-@media (max-width:700px){.filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:-16px;padding-right:16px;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}.filters::-webkit-scrollbar{display:none}.filters .f{width:74px}.bhint::after{content:' · 옆으로 밀어요 →'}}
+.filters{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:2px;align-items:start;border:0;padding:8px 0 4px;margin:0}
+.filters .f{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:8px 0 9px;border:0;border-radius:16px;background:transparent;font:inherit;color:var(--ink);cursor:pointer;text-align:center;transition:background .15s;box-shadow:none;width:auto}
+.filters .f .ic{display:block;width:46px;line-height:0}
+.filters .f .ic svg{width:46px;height:auto;display:block;overflow:visible;transition:transform .15s}
+.filters .f:hover .ic svg{transform:translateY(-2px)}
+.filters .f.on .ic svg{transform:translateY(-4px)}
+.filters .f .yr{display:block;font-size:12px;font-weight:700;color:var(--soft);margin-top:4px;line-height:1.2;min-height:15px}
+.filters .f .bl{display:block;font-size:12px;font-weight:600;line-height:1.28;word-break:keep-all;color:#555;min-height:0}
+.filters .f.on,.filters .f.fnote.on,.filters .f[data-d="-1"].on{background:rgba(0,113,227,.09)}
+.filters .f.on .bl{color:var(--ink);font-weight:800}.filters .f.on .yr{color:var(--acc)}
+.filters .f .tg{transform:rotate(var(--t,0deg));transform-origin:26px 30px;transition:transform .15s}
+.filters .f.on .tg{transform:none}
+.filters .f .shd{transform-origin:26px 55px;transition:transform .15s,opacity .15s}
+.filters .f.on .shd{transform:scale(.72,1);opacity:.08}
+.filters .f .sp{opacity:0;transition:opacity .15s}.filters .f.on .sp{opacity:1}
+.filters .f.fnote small{background:#E5E5EA;color:var(--soft);border-radius:99px;padding:0 6px;font-size:11px;font-weight:700}
+@media (max-width:700px){.filters{grid-template-columns:repeat(5,minmax(0,1fr));row-gap:4px;overflow:visible;margin-right:0;padding-right:0;-webkit-mask-image:none;mask-image:none}.filters .f{white-space:normal}}
 .pghint{margin:10px 2px 8px;font-size:14px}
 .tools{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 2px}
 .tools button,.tools .ckbtn,.tools #noteopen{font:inherit!important;font-size:13.5px!important;font-weight:600!important;border:1px solid #D2D2D7!important;border-radius:99px!important;background:#fff!important;color:#1D1D1F!important;padding:8px 14px!important;margin:0!important;box-shadow:none!important;cursor:pointer}
 .tools button:hover{background:#F2F2F7!important}
-@media (min-width:1560px){
+@media (min-width:1900px){
  .tools{position:fixed;left:28px;top:190px;flex-direction:column;align-items:stretch;width:200px;gap:8px;z-index:5}
  .tools button{border-radius:14px!important;text-align:left;line-height:1.4;padding:10px 14px!important}
 }
@@ -619,17 +613,13 @@ body.seoopen{overflow:hidden}
 .chips span{font-size:14px;color:var(--soft);margin-right:2px}
 .pick,.pq,.ph{display:none!important}
 .notebar{display:none}
-.filters .f{box-shadow:none!important;border:0!important;background:transparent;word-break:keep-all;width:78px}
-.filters .f:hover{background:rgba(0,0,0,.04)}
-.filters .f.fnote.on{background:rgba(255,214,10,.2)}.filters .f[data-d="-1"].on{background:rgba(0,113,227,.08)}
 .fnote small:empty{display:none}
 .tools button{word-break:keep-all}
-@media (min-width:1560px){.tools{width:230px}}
-@media (max-width:700px){.filters .f{width:74px}}
+@media (min-width:1900px){.tools{width:230px}}
 #totop[hidden]{display:none}
 .sbox.shake{box-shadow:0 0 0 3px #FF3B30;transition:box-shadow .2s}
 #toast{z-index:70}
-@media (max-width:700px){.filters{-webkit-mask-image:linear-gradient(90deg,#000 86%,transparent);mask-image:linear-gradient(90deg,#000 86%,transparent)}.ph::after{content:' · 옆으로 밀면 더 있어요 →'}}
+
 .cktag,.cksrc,.cksrc.jb,.path,.why,.hsub,.empty,.nm,.st,.ct,.me-line,small,.gnote,footer,.qcn,.sh,.ckres,.aib{font-size:14px}.hof{font-size:13px}
 .cksrcs::before{font-size:14px}
 a.cksrc,.cksrc.jb{padding:6px 12px;min-height:36px;display:inline-flex;align-items:center;margin:4px 6px 4px 0}
@@ -647,7 +637,7 @@ a.cksrc,.cksrc.jb{padding:6px 12px;min-height:36px;display:inline-flex;align-ite
   </form>
   <div class="books-wrap"><div class="bhint">찾을 편람을 골라요 (안 고르면 전체)</div>
   <div class="filters" id="filters">
-    <button class="f on" data-d="-1" type="button" title="모든 편람에서 찾기"><span class="bk"></span><span class="bl">전체</span></button>
+    <button class="f on" data-d="-1" type="button" title="모든 편람에서 찾기"><span class="bl">전체 편람</span></button>
     <button class="aib" id="aib" type="button"></button>
   </div></div>
   <div class="pghint">쪽 번호를 아시면 바로 가기: <b>확정일자 12쪽</b> · <b>인감 30쪽</b></div>
@@ -1034,8 +1024,20 @@ if(!AIV.length)document.getElementById('aib').style.display='none';
 else{let pref=null;try{pref=localStorage.getItem('sosAI')}catch(e){}
   const desk=window.matchMedia&&matchMedia('(min-width:800px)').matches&&!(navigator.connection&&navigator.connection.saveData);
   if(pref==='1'||(pref!=='0'&&desk))setTimeout(loadAI,800)}
-const BKL=['주민등록','사례집','인감','확정일자','가족관계','임대차 질의응답','임대차 사무편람','독산1동 지침서'];
-{const fb=document.getElementById('filters'),aib=document.getElementById('aib');DOCS.forEach((d,i)=>{const b=document.createElement('button');b.className='f';b.type='button';b.dataset.d=i;b.title=d.name;b.innerHTML='<span class="bk"></span><span class="bl">'+esc(BKL[i]||d.short)+'</span>';fb.insertBefore(b,aib)});const nb=document.createElement('button');nb.className='f fnote';nb.id='fnote';nb.type='button';nb.title='동료가 남긴 실무 메모만 보기';nb.innerHTML='<span class="bk"></span><span class="bl">실무 메모 <small id="fnc"></small></span>';fb.insertBefore(nb,aib)}
+/* 둥근 책 아이콘 */
+const BKC=[['#4C9BFF','#2B72D8','house'],['#FFA63D','#E0841A','bubble'],['#4CCB7C','#2BA45B','seal'],['#B87BEF','#9358CC','cal'],['#FFC93C','#E0A412','heart'],['#36C2D1','#1A9CAA','star'],['#3DB899','#1E9276','doc'],['#FF6B6B','#DB4545','check']];
+const BKE={house:'<path d="M26 22 L34 29 H31 V36 H21 V29 H18 Z" fill="#fff"/>',bubble:'<path d="M19 22 h14 a3 3 0 0 1 3 3 v7 a3 3 0 0 1 -3 3 h-8 l-5 4 v-4 h-1 a3 3 0 0 1 -3 -3 v-7 a3 3 0 0 1 3 -3z" fill="#fff"/>',seal:'<circle cx="26" cy="29" r="8.5" fill="#fff"/><circle cx="26" cy="29" r="5" fill="none" stroke="COL" stroke-width="1.8"/>',cal:'<rect x="17.5" y="21" width="17" height="16" rx="3" fill="#fff"/><rect x="17.5" y="21" width="17" height="5" rx="2.5" fill="#00000030"/><circle cx="23" cy="31.5" r="1.6" fill="COL"/><circle cx="29" cy="31.5" r="1.6" fill="COL"/>',heart:'<path d="M26 37 C16 30 17 22 22.5 22 C24.5 22 26 23.6 26 25 C26 23.6 27.5 22 29.5 22 C35 22 36 30 26 37z" fill="#fff"/>',star:'<path d="M26 20.5 l2.6 5.6 6.1.7 -4.5 4.2 1.2 6 -5.4-3 -5.4 3 1.2-6 -4.5-4.2 6.1-.7z" fill="#fff"/>',doc:'<rect x="19" y="20.5" width="14" height="17" rx="2.5" fill="#fff"/><rect x="21.5" y="25" width="9" height="1.8" rx=".9" fill="COL"/><rect x="21.5" y="29" width="9" height="1.8" rx=".9" fill="COL"/><rect x="21.5" y="33" width="5.5" height="1.8" rx=".9" fill="COL"/>',check:'<circle cx="26" cy="29" r="8.5" fill="#fff"/><path d="M21.8 29.3 l3.2 3.3 5.6-6.4" fill="none" stroke="COL" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>'};
+let BKU=0;
+const BKSP='<g class="sp"><path d="M3 12 l1.6 3.4 3.4 1.6 -3.4 1.6 -1.6 3.4 -1.6-3.4 -3.4-1.6 3.4-1.6z" fill="#FFC400"/><path d="M48 4 l1.2 2.6 2.6 1.2 -2.6 1.2 -1.2 2.6 -1.2-2.6 -2.6-1.2 2.6-1.2z" fill="#FFC400"/></g>';
+const BKSH='<ellipse class="shd" cx="26" cy="55" rx="15" ry="2.4" fill="#000" opacity=".14"/>';
+function bkBook(i){const[c,d,e]=BKC[i%BKC.length],id='bk'+(BKU++),em=BKE[e].replace(/COL/g,d),t=i%2?3:-3;
+ return `<svg viewBox="0 0 52 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><clipPath id="${id}"><rect x="7" y="5" width="36" height="46" rx="8"/></clipPath><linearGradient id="g${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>${BKSH}<g class="tg" style="--t:${t}deg"><rect x="11" y="9" width="35" height="46" rx="8" fill="#FFF3D6" stroke="#EAD9AE"/><path d="M15 52 H40" stroke="#EAD9AE" stroke-linecap="round"/><rect x="7" y="5" width="36" height="46" rx="8" fill="${c}"/><g clip-path="url(#${id})"><rect x="7" y="5" width="11" height="46" fill="${d}"/><rect x="18.5" y="5" width="1.8" height="46" fill="#fff" opacity=".35"/><rect x="7" y="5" width="36" height="46" fill="url(#g${id})"/></g><rect x="7" y="5" width="36" height="46" rx="8" fill="none" stroke="${d}" stroke-width="1.2" opacity=".55"/><g transform="translate(3 0)">${em}</g><path d="M36 45 v12 l3.5-3 3.5 3 v-12z" fill="#FF5A5F"/>${BKSP}</g></svg>`}
+function bkAll(){return `<svg viewBox="0 0 52 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${BKSH}`+[[4,12,'#FFA63D',-4],[16,6,'#4C9BFF',0],[28,10,'#4CCB7C',3]].map(([x,y,c,r])=>`<g class="tg" style="--t:${r}deg;transform-origin:${x+8}px 50px"><rect x="${x}" y="${y}" width="16" height="42" rx="4.5" fill="${c}"/><rect x="${x}" y="${y}" width="16" height="42" rx="4.5" fill="none" stroke="#0002"/><rect x="${x+3}" y="${y+7}" width="10" height="3.5" rx="1.7" fill="#fff" opacity=".85"/><rect x="${x+3}" y="${y+13}" width="7" height="3" rx="1.5" fill="#fff" opacity=".6"/></g>`).join('')+BKSP+'</svg>'}
+function bkMemo(){return `<svg viewBox="0 0 52 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${BKSH}<g class="tg" style="--t:3deg"><rect x="8" y="8" width="36" height="44" rx="7" fill="#FFD84D" stroke="#E0B000" stroke-width="1.2"/><rect x="8" y="8" width="36" height="9" rx="4" fill="#FFB800" opacity=".55"/>`+[15,22,29,36].map(x=>`<rect x="${x-1.6}" y="3.5" width="3.2" height="9" rx="1.6" fill="#8A6A00"/>`).join('')+`<rect x="15" y="24" width="22" height="2.2" rx="1.1" fill="#B58A00" opacity=".6"/><rect x="15" y="30" width="22" height="2.2" rx="1.1" fill="#B58A00" opacity=".6"/><rect x="15" y="36" width="13" height="2.2" rx="1.1" fill="#B58A00" opacity=".6"/><path d="M33 40 l3 3 6-6" fill="none" stroke="#FF5A5F" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>${BKSP}</g></svg>`}
+{const fb=document.getElementById('filters'),aib=document.getElementById('aib');
+ const al=fb.querySelector('.f[data-d="-1"]');al.innerHTML='<span class="ic">'+bkAll()+'</span><span class="yr">&nbsp;</span><span class="bl">전체 편람</span>';
+ DOCS.forEach((d,i)=>{const m=d.name.match(/^(\S+)\s+(.+)$/)||[0,'',d.name];const b=document.createElement('button');b.className='f';b.type='button';b.dataset.d=i;b.title=d.full||d.name;b.innerHTML='<span class="ic">'+bkBook(i)+'</span><span class="yr">'+esc(m[1])+'</span><span class="bl">'+esc(m[2])+'</span>';fb.insertBefore(b,aib)});
+ const nb=document.createElement('button');nb.className='f fnote';nb.id='fnote';nb.type='button';nb.title='동료가 남긴 실무 메모만 보기';nb.innerHTML='<span class="ic">'+bkMemo()+'</span><span class="yr">&nbsp;</span><span class="bl">실무 메모 <small id="fnc"></small></span>';fb.insertBefore(nb,aib)}
 guess.addEventListener('click',e=>{const on=e.target.closest('.oldn');if(on){const [d,pp]=on.dataset.go.split(':').map(Number);openViewer({d,p:pp+DOCS[d].off,pp,t:'',s:'',c:''});return}const fbb=e.target.closest('[data-fb]');if(fbb){if(fbb.dataset.fb==='send')fbAsk();return}const o=e.target.closest('[data-k]');if(o){openViewer(results[+o.dataset.k]);return}const b=e.target.closest('.con');if(!b)return;const n=b.dataset.n;off.has(n)?off.delete(n):off.add(n);run(true)});
 const qel=document.getElementById('q');
 function emptyHint(){guess.innerHTML='';list.innerHTML='';info.innerHTML='';try{document.getElementById('fbbar').hidden=true}catch(e){}toast('검색어를 먼저 적어 주세요 (예: 세대주 아닌 가족이 대신 전입신고)');const f=document.getElementById('form');f.classList.add('shake');setTimeout(()=>f.classList.remove('shake'),700);try{qel.focus()}catch(e){}}
