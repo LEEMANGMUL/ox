@@ -650,6 +650,12 @@ details.gw>div{margin-top:4px}
 .a2hs summary{cursor:pointer;list-style:none;font-weight:600;display:inline-block;padding:6px 14px;border:1px solid #D2D2D7;border-radius:99px;background:#fff;color:#1D1D1F}
 .a2hs summary::-webkit-details-marker{display:none}
 .a2hs div{margin-top:10px;line-height:1.7;text-align:left;background:#fff;border-radius:14px;padding:12px 16px}
+#backrow{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;padding:8px 0;margin:0 0 4px;background:rgba(245,245,247,.9);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+#backrow[hidden]{display:none}
+#backbtn{font:inherit;font-size:15px;font-weight:700;border:0;border-radius:99px;padding:9px 18px;background:#fff;color:var(--acc);box-shadow:0 1px 6px rgba(0,0,0,.14);cursor:pointer}
+#backbtn:hover{background:#EAF2FD}
+#backrow .bkhint{font-size:12.5px;color:var(--soft)}
+@media (hover:none){#backrow .bkhint{display:none}}
 </style>
 </head>
 <body>
@@ -675,6 +681,7 @@ details.gw>div{margin-top:4px}
   </nav>
 </div></header>
 <main><div class="wrap">
+  <div id="backrow" hidden><button type="button" id="backbtn">← 뒤로</button><span class="bkhint">키보드 Backspace 키로도 돌아가요</span></div>
   <div class="chips" id="chips"><span>이렇게 물어보세요</span></div>
   <div id="guess"></div>
   <div id="notes"></div>
@@ -978,7 +985,14 @@ function render(more){
   if(shown<GRP.length)list.insertAdjacentHTML('beforeend',`<button class="more" type="button">${shown<=5?'나머지 결과 더 보기':'결과 더 보기'} (${GRP.length-shown}묶음 남음)</button>`);
 }
 const guess=document.getElementById('guess'),chips=document.getElementById('chips');
-function histSync(q){try{const st=history.state||{};if(st.v||st.o)return;const ns={q:q,f:[...FSEL]};const url=q?'#q='+encodeURIComponent(q):location.pathname+location.search;if(!HIST_LOCK&&(st.q||'')!==q)history.pushState(ns,'',url);else history.replaceState(ns,'',url)}catch(e){}}
+function backUI(q){const r=document.getElementById('backrow');if(!r)return;const on=!!q||NOTEMODE;r.hidden=!on;const st=history.state||{};const b=document.getElementById('backbtn');if(b)b.textContent=st.i>0?'← 뒤로':'← 처음으로'}
+function histSync(q){try{const st=history.state||{};if(st.v||st.o){backUI(q);return}const url=q?'#q='+encodeURIComponent(q):location.pathname+location.search;if(!HIST_LOCK&&(st.q||'')!==q)history.pushState({q:q,f:[...FSEL],i:(st.i||0)+1},'',url);else history.replaceState({q:q,f:[...FSEL],i:st.i||0},'',url)}catch(e){}backUI(q)}
+function goBack(){if(V.classList.contains('open')){document.getElementById('vclose').click();return true}
+  try{if(!seoEl.hidden){document.getElementById('seoclose').click();return true}}catch(e){}
+  const st=history.state||{};
+  if(st.i>0){history.back();return true}
+  if(qel.value.trim()||NOTEMODE){NOTEMODE=false;try{syncF()}catch(e){}qel.value='';run();window.scrollTo({top:0,behavior:'smooth'});return true}
+  return false}
 let runId=0;
 async function run(keepOff){try{if(!NICK){showGate();return}}catch(e){}
   const my=++runId;
@@ -1179,7 +1193,7 @@ window.addEventListener('popstate',e=>{if(V.classList.contains('open')){closeVie
   try{if(!seoEl.hidden){seoClose();return}}catch(err){}
   const st=e.state||{};if(st.v||st.o)return;
   const q=st.q!==undefined?st.q:decodeURIComponent((location.hash.match(/q=([^&]+)/)||[])[1]||'');
-  HIST_LOCK=true;RESTORING=true;try{qel.value=q;NOTEMODE=false;FSEL.clear();(st.f||LS.get('jjk_fsel',[])).forEach(d=>{if(DOCS[d])FSEL.add(d)});syncF();run(true)}finally{HIST_LOCK=false;RESTORING=false}});
+  HIST_LOCK=true;RESTORING=true;try{qel.value=q;NOTEMODE=false;FSEL.clear();(st.f||LS.get('jjk_fsel',[])).forEach(d=>{if(DOCS[d])FSEL.add(d)});syncF();run(true);window.scrollTo(0,0)}finally{HIST_LOCK=false;RESTORING=false}});
 document.getElementById('vprev').onclick=()=>{if(cur.p>1){cur.p--;showPage(true)}};
 document.getElementById('vnext').onclick=()=>{if(cur.p<DOCS[cur.d].total){cur.p++;showPage(true)}};
 document.getElementById('vzi').onclick=()=>{zoom=Math.min(zoom*1.25,3);showPage(false)};
@@ -1187,6 +1201,8 @@ document.getElementById('vzo').onclick=()=>{zoom=Math.max(zoom/1.25,.6);showPage
 document.addEventListener('keydown',e=>{if(!V.classList.contains('open'))return;if(e.key==='Escape')document.getElementById('vclose').click();if(e.key==='ArrowLeft')document.getElementById('vprev').click();if(e.key==='ArrowRight')document.getElementById('vnext').click()});
 let rsz;window.addEventListener('resize',()=>{if(!V.classList.contains('open'))return;clearTimeout(rsz);rsz=setTimeout(()=>showPage(false),250)});
 
+document.getElementById('backbtn').addEventListener('click',()=>goBack());
+document.addEventListener('keydown',e=>{if(e.key!=='Backspace'||e.ctrlKey||e.metaKey||e.altKey||e.shiftKey)return;const t=e.target;if(t&&(/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)||t.isContentEditable))return;if([...document.querySelectorAll('[role=dialog]')].some(d=>d.id!=='seosik'&&!d.hidden&&getComputedStyle(d).display!=='none'))return;if(goBack())e.preventDefault()});
 // ---------- 최근 본 쪽 5개 · 체크 기억 · 편람 기억 ----------
 let RECENT=LS.get('jjk_recent',[]).filter(x=>x&&DOCS[x.d]&&x.pp>0).slice(0,5),curRec=null;
 function recSave(){LS.set('jjk_recent',RECENT)}
