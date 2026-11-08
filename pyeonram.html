@@ -548,12 +548,27 @@ a.cksrc::after{content:' ›';font-weight:700}
 #seosik .schips button{flex:none;white-space:nowrap;height:40px;padding:0 14px;border:0;border-radius:99px;background:#48484A;color:#fff;font-size:15px}
 #seosik .schips button.on{background:var(--acc)}
 #seosik .sview{flex:1;overflow:auto;background:#525659;-webkit-overflow-scrolling:touch;text-align:center}
-#seosik .sview img{width:100%;max-width:none;height:auto;display:inline-block;background:#fff;vertical-align:top}
+#seosik .sview img{max-width:none;height:auto;display:inline-block;background:#fff;vertical-align:top;cursor:zoom-in}
+#seosik .sview.fit{display:flex;align-items:center;justify-content:center;overflow:hidden;padding:8px}
+#seosik .sview.fit img{height:100%;width:auto;max-width:100%;object-fit:contain;cursor:zoom-in}
+#seosik .sview:not(.fit) img{cursor:zoom-out}
 #seosik .smsg{color:#fff;padding:40px 20px;font-size:17px;line-height:1.6}
 #seosik .sact{display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(29,29,31,.96)}
 #seosik .sact button{height:46px;min-width:46px;padding:0 14px;border:0;border-radius:12px;background:#48484A;color:#fff;font-size:15px;font-weight:600}
 #seosik .sact button:disabled{opacity:.35}
 #seosik .sact .pr{background:var(--acc);flex:1 1 40%}#seosik .sact .pr2{background:#fff;color:#1D1D1F;flex:1 1 40%}
+@media (min-width:900px){
+#seosik{display:grid;grid-template-columns:330px 1fr;grid-template-rows:auto auto 1fr auto}
+#seosik[hidden]{display:none}
+#seosik .sbar{grid-column:1/3;grid-row:1}
+#seosik .stabs{grid-column:1;grid-row:2;padding:10px 12px 4px}
+#seosik .schips{grid-column:1;grid-row:3;flex-direction:column;overflow-y:auto;overflow-x:hidden;padding:6px 12px 12px}
+#seosik .schips button{white-space:normal;text-align:left;height:auto;min-height:46px;padding:8px 16px;border-radius:14px;font-size:16px}
+#seosik .sview{grid-column:2;grid-row:2/4}
+#seosik .sact{grid-column:1/3;grid-row:4}
+#seosik .sact .pr,#seosik .sact .pr2{flex:0 0 220px}
+#seosik .sview.fit{padding:12px}
+}
 body.seoopen{overflow:hidden}
 #printarea{display:none}
 .seolink{font:inherit;font-size:15px;font-weight:600;border-radius:99px;padding:9px 16px;cursor:pointer;background:#fff;color:var(--acc);border:1.5px solid var(--acc);margin-right:8px}
@@ -584,7 +599,7 @@ a.cksrc,.cksrc.jb{padding:6px 12px;min-height:36px;display:inline-flex;align-ite
     <button id="go" type="submit">찾기</button>
   </form>
   <div class="pghint">쪽 번호를 아시면 바로 가기: <b>확정일자 12쪽</b> · <b>인감 30쪽</b></div>
-  <div class="ckbtnrow"><button type="button" id="ckall" class="ckbtn">준비물 체크리스트 전체 보기</button> <button type="button" id="seobtn" class="ckbtn seob" data-seo="0">출생·사망 신고서 작성 예시 보기·인쇄</button></div>
+  <div class="ckbtnrow"><button type="button" id="ckall" class="ckbtn">준비물 체크리스트 전체 보기</button> <button type="button" id="seobtn" class="ckbtn seob" data-seo="0">출생·사망 신고서 작성 예시 보기</button></div>
   <div class="pick"><span class="pq">어느 편람에서 찾을까요?</span><span class="ph">아래 버튼을 누르면 그 편람에서만 찾아요 · <b style="color:#FFE38A">여러 개 골라도 돼요</b> (다시 누르면 빠져요) · 전체는 모든 편람 · <b style="color:#FFE38A">실무</b>는 동료가 남긴 메모만</span></div>
   <div class="filters" id="filters">
     <button class="f on" data-d="-1" type="button">전체</button>
@@ -643,7 +658,7 @@ a.cksrc,.cksrc.jb{padding:6px 12px;min-height:36px;display:inline-flex;align-ite
   <div class="sact">
     <button type="button" id="seoprev">◀ 앞</button>
     <button type="button" id="seonext">다음 ▶</button>
-    <button type="button" id="seozo">－</button><button type="button" id="seozi">＋</button>
+    <button type="button" id="seozo" title="한눈에 보기">－</button><button type="button" id="seozi" title="크게 보기">＋</button>
     <button type="button" class="pr" id="seoprint1">이 서식 인쇄</button>
     <button type="button" class="pr2" id="seoprintall">이 탭 8장 인쇄</button>
   </div>
@@ -943,7 +958,7 @@ async function run(keepOff){try{if(!NICK){showGate();return}}catch(e){}
       (sim?`<div class="bsim">${AMB?'다른 후보':'비슷한 경우'} &nbsp;${sim}</div>`:'')+`</div>`)+g;
   }
   try{g=chkHtml(q)+g}catch(e){console.error(e)}
-  if(/(신고서|서식|양식|작성\s*예시|작성법|어떻게\s*(써|작성)|쓰는\s*법)/.test(q)&&/(출생|사망|돌아가|낳)/.test(q)){const dd=/(사망|돌아가)/.test(q)&&!/출생/.test(q);g=`<div class="lowc seoq"><b>${dd?'사망':'출생'}신고서 작성 예시가 있어요.</b> 경우별 8장을 보고 바로 인쇄할 수 있어요.<button type="button" class="lowfb" data-seo="${dd?14:6}">${dd?'사망':'출생'}신고서 예시 보기·인쇄</button></div>`+g}
+  if(/(신고서|서식|양식|작성\s*예시|작성법|어떻게\s*(써|작성)|쓰는\s*법)/.test(q)&&/(출생|사망|돌아가|낳)/.test(q)){const dd=/(사망|돌아가)/.test(q)&&!/출생/.test(q);g=`<div class="lowc seoq"><b>${dd?'사망':'출생'}신고서 작성 예시가 있어요.</b> 경우별 8장을 볼 수 있어요.<button type="button" class="lowfb" data-seo="${dd?14:6}">${dd?'사망':'출생'}신고서 예시 보기</button></div>`+g}
   guess.innerHTML=g;try{renderNotes(q)}catch(e){}
   const cnts=DOCS.map((d,i)=>[d.short,results.filter(x=>x.d==i).length]).filter(x=>x[1]);
   if(!results.length){info.innerHTML='';list.innerHTML=`<div class="empty">‘${esc(q)}’에 맞는 곳을 찾지 못했어요.<br>업무 용어로 바꿔 보거나(예: 집주인 → 임대인), 낱말을 줄여 보세요.<button type="button" class="lowfb" data-fb="send">못 찾았어요</button></div>`;return}
@@ -1210,7 +1225,7 @@ function seoShow(n){seoCur=n;const it=SEO.find(x=>x[1]===n)||SEO[0];const t=it[0
   document.getElementById('seoview').scrollTop=0;
   const i=list.findIndex(x=>x[1]===n);document.getElementById('seoprev').disabled=i<=0;document.getElementById('seonext').disabled=i>=list.length-1;
   document.getElementById('seoprintall').textContent=(t==='b'?'출생':'사망')+' 8장 인쇄'}
-function seoZoom(){document.getElementById('seoimg').style.width=[100,150,210][seoZ]+'%'}
+function seoZoom(){const im=document.getElementById('seoimg'),v=document.getElementById('seoview');v.classList.toggle('fit',seoZ===0);im.style.width=seoZ===0?'':[0,'min(100%,1000px)','min(200%,1800px)'][seoZ];v.scrollTop=0;v.scrollLeft=0;document.getElementById('seozo').disabled=seoZ===0;document.getElementById('seozi').disabled=seoZ===2}
 function seoOpen(n){seoEl.hidden=false;document.body.classList.add('seoopen');seoZ=0;seoZoom();seoShow(n||seoCur)}
 function seoClose(){seoEl.hidden=true;document.body.classList.remove('seoopen')}
 function seoPrint(ns){const pa=document.getElementById('printarea');pa.innerHTML=ns.map(n=>`<img src="${seoF(n)}" alt="">`).join('');
@@ -1220,6 +1235,7 @@ document.getElementById('seotabs').addEventListener('click',e=>{const b=e.target
 document.getElementById('seochips').addEventListener('click',e=>{const b=e.target.closest('button');if(b)seoShow(+b.dataset.n)});
 document.getElementById('seoclose').addEventListener('click',seoClose);
 document.getElementById('seoprev').addEventListener('click',()=>seoShow(seoCur-1));document.getElementById('seonext').addEventListener('click',()=>seoShow(seoCur+1));
+document.getElementById('seoimg').addEventListener('click',()=>{seoZ=seoZ===0?(innerWidth<700?2:1):0;seoZoom()});
 document.getElementById('seozo').addEventListener('click',()=>{seoZ=Math.max(0,seoZ-1);seoZoom()});document.getElementById('seozi').addEventListener('click',()=>{seoZ=Math.min(2,seoZ+1);seoZoom()});
 document.getElementById('seoprint1').addEventListener('click',()=>seoPrint([seoCur]));
 document.getElementById('seoprintall').addEventListener('click',()=>{const t=(SEO.find(x=>x[1]===seoCur)||SEO[0])[0];seoPrint(SEO.filter(x=>x[0]===t).map(x=>x[1]))});
