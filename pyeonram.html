@@ -650,12 +650,13 @@ details.gw>div{margin-top:4px}
 .a2hs summary{cursor:pointer;list-style:none;font-weight:600;display:inline-block;padding:6px 14px;border:1px solid #D2D2D7;border-radius:99px;background:#fff;color:#1D1D1F}
 .a2hs summary::-webkit-details-marker{display:none}
 .a2hs div{margin-top:10px;line-height:1.7;text-align:left;background:#fff;border-radius:14px;padding:12px 16px}
-#backrow{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;padding:8px 0;margin:0 0 4px;background:rgba(245,245,247,.9);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
-#backrow[hidden]{display:none}
-#backbtn{font:inherit;font-size:15px;font-weight:700;border:0;border-radius:99px;padding:9px 18px;background:#fff;color:var(--acc);box-shadow:0 1px 6px rgba(0,0,0,.14);cursor:pointer}
-#backbtn:hover{background:#EAF2FD}
-#backrow .bkhint{font-size:12.5px;color:var(--soft)}
-@media (hover:none){#backrow .bkhint{display:none}}
+.bback{font:inherit;font-size:15px;font-weight:700;padding:10px 18px;border:1.5px solid #D2D2D7;border-radius:10px;background:#fff;color:#1D1D1F;cursor:pointer}
+.bback:hover{background:#F2F2F7}
+.best .bbtns .bback{border-radius:13px;font-size:15px;padding:13px 20px;border:0}
+.lowc .bback,.pginfo .bback{font-size:14px;padding:6px 14px;margin-right:8px;border-radius:99px;color:var(--acc);border-color:var(--acc)}
+.lowc .bback{margin:8px 8px 0 0}
+@media (max-width:560px){.best .bbtns{gap:8px}.best .bbtns button{padding:12px 14px;font-size:15px}}
+.nbox .bback{margin:0 0 10px;display:block}
 </style>
 </head>
 <body>
@@ -681,7 +682,6 @@ details.gw>div{margin-top:4px}
   </nav>
 </div></header>
 <main><div class="wrap">
-  <div id="backrow" hidden><button type="button" id="backbtn">← 뒤로</button><span class="bkhint">키보드 Backspace 키로도 돌아가요</span></div>
   <div class="chips" id="chips"><span>이렇게 물어보세요</span></div>
   <div id="guess"></div>
   <div id="notes"></div>
@@ -985,8 +985,8 @@ function render(more){
   if(shown<GRP.length)list.insertAdjacentHTML('beforeend',`<button class="more" type="button">${shown<=5?'나머지 결과 더 보기':'결과 더 보기'} (${GRP.length-shown}묶음 남음)</button>`);
 }
 const guess=document.getElementById('guess'),chips=document.getElementById('chips');
-function backUI(q){const r=document.getElementById('backrow');if(!r)return;const on=!!q||NOTEMODE;r.hidden=!on;const st=history.state||{};const b=document.getElementById('backbtn');if(b)b.textContent=st.i>0?'← 뒤로':'← 처음으로'}
-function histSync(q){try{const st=history.state||{};if(st.v||st.o){backUI(q);return}const url=q?'#q='+encodeURIComponent(q):location.pathname+location.search;if(!HIST_LOCK&&(st.q||'')!==q)history.pushState({q:q,f:[...FSEL],i:(st.i||0)+1},'',url);else history.replaceState({q:q,f:[...FSEL],i:st.i||0},'',url)}catch(e){}backUI(q)}
+const bbk=()=>`<button type="button" class="bback">${((history.state||{}).i>0)?'← 뒤로':'← 처음으로'}</button>`;
+function histSync(q){try{const st=history.state||{};if(st.v||st.o)return;const url=q?'#q='+encodeURIComponent(q):location.pathname+location.search;if(!HIST_LOCK&&(st.q||'')!==q)history.pushState({q:q,f:[...FSEL],i:(st.i||0)+1},'',url);else history.replaceState({q:q,f:[...FSEL],i:st.i||0},'',url)}catch(e){}}
 function goBack(){if(V.classList.contains('open')){document.getElementById('vclose').click();return true}
   try{if(!seoEl.hidden){document.getElementById('seoclose').click();return true}}catch(e){}
   const st=history.state||{};
@@ -1037,10 +1037,10 @@ async function run(keepOff){try{if(!NICK){showGate();return}}catch(e){}
     const sim=results.slice(1,4).map((x,k)=>`<a data-k="${k+1}">${esc(DOCS[x.d].short)} ${x.pp}쪽 · ${esc(lab(x).replace(/^사례 \d+\.\s*(\([^)]*\)\s*)?/,'').replace(/^질의 \d+\.\s*/,'').slice(0,34))}</a>`).join(' &nbsp;·&nbsp; ');
     let CKN=0;try{CKN=chkTop(q).length}catch(e){}
     const SC=window.__sc||[999,0,0],LOW=AI.state!=='on'&&SC[0]<60&&!FSEL.size,AMB=!LOW&&AI.state!=='on'&&SC[1]>=0.9*SC[0],REF=!LOW&&!AMB&&CKN>0;
-    g=(LOW?`<div class="lowc"><b>딱 맞는 곳을 찾지 못했어요.</b> 아래는 글자만 비슷한 후보예요. 업무 말로 바꿔 적어 보세요 (예: 집주인 → 임대인)<button type="button" class="lowfb" data-fb="send">못 찾았어요</button></div>`:`<div class="best d${b.d}${AMB||REF?' amb':''}"><div class="bh">${AI.state==='on'?'<span class="ai">AI</span>':''}${AMB?'비슷한 경우가 여러 개예요 · 아래 다른 후보도 같이 보세요':REF?'편람에서 가장 비슷한 사례 · 위 준비물 카드와 함께 확인하세요':'말씀하신 상황은 이 경우와 가장 비슷해 보여요'}</div>`+
+    g=(LOW?`<div class="lowc"><b>딱 맞는 곳을 찾지 못했어요.</b> 아래는 글자만 비슷한 후보예요. 업무 말로 바꿔 적어 보세요 (예: 집주인 → 임대인)<br>${bbk()}<button type="button" class="lowfb" data-fb="send">못 찾았어요</button></div>`:`<div class="best d${b.d}${AMB||REF?' amb':''}"><div class="bh">${AI.state==='on'?'<span class="ai">AI</span>':''}${AMB?'비슷한 경우가 여러 개예요 · 아래 다른 후보도 같이 보세요':REF?'편람에서 가장 비슷한 사례 · 위 준비물 카드와 함께 확인하세요':'말씀하신 상황은 이 경우와 가장 비슷해 보여요'}</div>`+
       `<div class="bt"><span class="badge">${esc(DOCS[b.d].name)}</span>${esc(lab(b))}<span class="bpg">${b.pp}쪽</span></div>`+
       (b.ans?`<div class="ans"><b>${b.d==1?'회신':b.qc?'답(요약)':'답'}</b>${hlText(b.ans)}</div>`:'')+oldNote(b)+twinNote(b)+
-      `<div class="bbtns"><button type="button" class="bopen" data-k="0">이 쪽 열어 보기</button><button type="button" class="bnope" data-fb="send">못 찾았어요</button></div>`+
+      `<div class="bbtns"><button type="button" class="bopen" data-k="0">이 쪽 열어 보기</button><button type="button" class="bnope" data-fb="send">못 찾았어요</button>${bbk()}</div>`+
       (sim?`<details class="bsim"${AMB?' open':''}><summary>${AMB?'다른 후보':'비슷한 경우'} ${Math.min(3,results.length-1)}개 보기</summary><div>${sim}</div></details>`:'')+`</div>`)+g;
   }
   try{g=chkHtml(q)+g}catch(e){console.error(e)}
@@ -1108,7 +1108,7 @@ function runPage(pq){
   results=[];GRP=[];chips.style.display='none';guess.innerHTML='';try{document.getElementById('notes').innerHTML=''}catch(e){}try{fbShow()}catch(e){}
   const targets=pq.docs.length?pq.docs:(FSEL.size?[...FSEL].sort((a,b)=>a-b):DOCS.map((_,i)=>i));
   const ok=targets.filter(d=>pq.n<=maxPP(d)),bad=targets.filter(d=>pq.n>maxPP(d));
-  info.innerHTML=`<div class="pginfo">📖 <b>${pq.n}쪽</b> 바로가기${pq.docs.length?'':(FSEL.size?' · 고른 편람':' · 모든 편람')} <small>(편람 이름을 같이 쓰면 그 편람만: 예 확정일자 ${pq.n}쪽)</small></div>`+(bad.length?`<div class="pgbad">${bad.map(d=>esc(DOCS[d].name)+'은 '+maxPP(d)+'쪽까지').join(' · ')} 있어서 ${pq.n}쪽이 없어요</div>`:'');
+  info.innerHTML=`<div class="pginfo">${bbk()}📖 <b>${pq.n}쪽</b> 바로가기${pq.docs.length?'':(FSEL.size?' · 고른 편람':' · 모든 편람')} <small>(편람 이름을 같이 쓰면 그 편람만: 예 확정일자 ${pq.n}쪽)</small></div>`+(bad.length?`<div class="pgbad">${bad.map(d=>esc(DOCS[d].name)+'은 '+maxPP(d)+'쪽까지').join(' · ')} 있어서 ${pq.n}쪽이 없어요</div>`:'');
   list.innerHTML=ok.length?ok.map(d=>`<div class="card d${d} pgcard" data-pgd="${d}" data-pgp="${pq.n}"><div class="top"><span class="badge">${esc(DOCS[d].name)}</span><span class="pg">${pq.n}쪽</span></div><div class="ttl">${esc(DOCS[d].name)} ${pq.n}쪽 열어 보기</div><button type="button" class="pgopen">이 쪽 열기 ›</button></div>`).join(''):`<div class="empty">${pq.n}쪽이 있는 편람이 없어요.</div>`;
   if(EXPL&&ok.length===1){const d=ok[0];openViewer({d,p:pq.n+DOCS[d].off,pp:pq.n,t:'',s:'',c:''})}}
 
@@ -1133,7 +1133,7 @@ function chkHtml(q){const t=chkTop(q);return t.length?`<div class="ckwrap">`+t.m
 function chkText(c,card){const L=[c.t+(c.r?' → '+c.r:'')];let di=0;const boxes=card?[...card.querySelectorAll('.ckit.doc input')]:[];c.it.forEach(x=>{let mark=x[0]==='d'?'□ ':x[0]==='x'?'✖ ':'· ';if(x[0]==='d'){if(boxes[di]&&boxes[di].checked)mark='☑ ';di++}L.push(mark+x[1]+' ('+x[2].map(([d,n])=>d==='edu'?'교육자료 '+n+'장':(d==='jb'?'족보':d==='bs'?'출생·사망 족보':DOCS[d].short)+' '+n+'쪽').join(', ')+')')});return L.join('\n')}
 function runChkAll(){results=[];GRP=[];chips.style.display='none';guess.innerHTML='';try{document.getElementById('notes').innerHTML=''}catch(e){}try{fbShow()}catch(e){}
   const G=[];CHK.forEach(c=>{let g=G.find(x=>x[0]===c.gl);if(!g)G.push(g=[c.gl,[]]);g[1].push(c)});
-  info.innerHTML=`<div class="pginfo">준비물 체크리스트 <b>${CHK.length}</b>장 <small>(상황을 눌러 펼치세요 · 검색창에 상황을 쓰면 해당 카드가 맨 위에 떠요)</small></div>`;
+  info.innerHTML=`<div class="pginfo">${bbk()}준비물 체크리스트 <b>${CHK.length}</b>장 <small>(상황을 눌러 펼치세요 · 검색창에 상황을 쓰면 해당 카드가 맨 위에 떠요)</small></div>`;
   list.innerHTML=G.map(([n,cs])=>`<div class="ckgrp"><div class="ckgh">${esc(n)} <small>${cs.length}장</small></div>`+cs.map(c=>ckCard(c,false)).join('')+`</div>`).join('')}
 function toast(m){let t=document.getElementById('toast');if(!t){t=document.createElement('div');t.id='toast';document.body.appendChild(t)}t.textContent=m;t.className='show';clearTimeout(t._h);t._h=setTimeout(()=>{t.className=''},3200)}
 {const tb=document.createElement('button');tb.id='totop';tb.type='button';tb.textContent='↑ 다시 검색';tb.hidden=true;document.body.appendChild(tb);let tv=false;window.addEventListener('scroll',()=>{const on=scrollY>700&&!V.classList.contains('open');if(on!==tv){tv=on;tb.hidden=!on}},{passive:true});tb.addEventListener('click',()=>{window.scrollTo({top:0,behavior:'smooth'});setTimeout(()=>{try{qel.focus({preventScroll:true})}catch(e){}},450)})}
@@ -1201,7 +1201,7 @@ document.getElementById('vzo').onclick=()=>{zoom=Math.max(zoom/1.25,.6);showPage
 document.addEventListener('keydown',e=>{if(!V.classList.contains('open'))return;if(e.key==='Escape')document.getElementById('vclose').click();if(e.key==='ArrowLeft')document.getElementById('vprev').click();if(e.key==='ArrowRight')document.getElementById('vnext').click()});
 let rsz;window.addEventListener('resize',()=>{if(!V.classList.contains('open'))return;clearTimeout(rsz);rsz=setTimeout(()=>showPage(false),250)});
 
-document.getElementById('backbtn').addEventListener('click',()=>goBack());
+document.addEventListener('click',e=>{if(e.target.closest('.bback')){e.preventDefault();goBack()}});
 document.addEventListener('keydown',e=>{if(e.key!=='Backspace'||e.ctrlKey||e.metaKey||e.altKey||e.shiftKey)return;const t=e.target;if(t&&(/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)||t.isContentEditable))return;if([...document.querySelectorAll('[role=dialog]')].some(d=>d.id!=='seosik'&&!d.hidden&&getComputedStyle(d).display!=='none'))return;if(goBack())e.preventDefault()});
 // ---------- 최근 본 쪽 5개 · 체크 기억 · 편람 기억 ----------
 let RECENT=LS.get('jjk_recent',[]).filter(x=>x&&DOCS[x.d]&&x.pp>0).slice(0,5),curRec=null;
@@ -1230,9 +1230,9 @@ function noteAll(q){const live=NSORT?NOTES.slice().sort((a,b)=>(b.reports-a.repo
   return live.filter(n=>hit.has(n)||ws.some(w=>eqn(n.title+' '+n.keywords+' '+n.body).includes(w)))}
 function renderNotes(q){const box=document.getElementById('notes');if(!box)return;
   if(NOTEMODE){const all=noteAll(q);
-    if(!NOTES.length){box.innerHTML='<div class="nbox"><div class="nbh">📝 동료가 남긴 실무</div><div class="nempty">아직 남겨진 실무가 없어요.<br>위의 ‘편람에 없는 우리 동 실무 남기기’ 버튼으로 첫 실무를 남겨 보세요.</div></div>';return}
+    if(!NOTES.length){box.innerHTML='<div class="nbox">'+bbk()+'<div class="nbh">📝 동료가 남긴 실무</div><div class="nempty">아직 남겨진 실무가 없어요.<br>위의 ‘편람에 없는 우리 동 실무 남기기’ 버튼으로 첫 실무를 남겨 보세요.</div></div>';return}
     const show=all.slice(0,NSHOW);
-    box.innerHTML=`<div class="nbox"><div class="nbh">📝 동료가 남긴 실무 모아보기 <small>${q?'‘'+esc(q)+'’ 관련 ':'전체 '}${all.length}건</small><button type="button" class="nsort" data-nsort="1">${NSORT?'최신순으로 보기':'이상해요 많은 순으로 보기'}</button></div>`+(all.length?show.map(n=>noteCard(n,false)).join(''):`<div class="nempty">‘${esc(q)}’와 맞는 실무가 아직 없어요.<br>검색창을 비우면 전체 실무를 볼 수 있어요.</div>`)+(all.length>show.length?`<button type="button" class="nmore" data-nmore="1">더 보기 (${all.length-show.length}건 남음)</button>`:'')+`<div class="nhint">${q?'':'위 검색창에 말을 적으면 실무 안에서만 찾아요.'}</div></div>`;return}
+    box.innerHTML=`<div class="nbox">${bbk()}<div class="nbh">📝 동료가 남긴 실무 모아보기 <small>${q?'‘'+esc(q)+'’ 관련 ':'전체 '}${all.length}건</small><button type="button" class="nsort" data-nsort="1">${NSORT?'최신순으로 보기':'이상해요 많은 순으로 보기'}</button></div>`+(all.length?show.map(n=>noteCard(n,false)).join(''):`<div class="nempty">‘${esc(q)}’와 맞는 실무가 아직 없어요.<br>검색창을 비우면 전체 실무를 볼 수 있어요.</div>`)+(all.length>show.length?`<button type="button" class="nmore" data-nmore="1">더 보기 (${all.length-show.length}건 남음)</button>`:'')+`<div class="nhint">${q?'':'위 검색창에 말을 적으면 실무 안에서만 찾아요.'}</div></div>`;return}
   const hs=noteHits(q);
   if(!hs.length){box.innerHTML='';return}
   box.innerHTML=`<div class="nbox"><div class="nbh">📝 편람에는 없지만 동료가 남긴 실무 <small>${hs.length}건</small></div>`+hs.map(n=>noteCard(n,true)).join('')+`</div>`}
