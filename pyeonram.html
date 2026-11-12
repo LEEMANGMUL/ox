@@ -733,6 +733,11 @@ body:has(.fh-panel) #totop{display:none}
 .fh-foot{display:flex;gap:10px;margin-top:16px}.fh-foot button{flex:1;font:inherit;font-weight:800;font-size:15.5px;border:0;border-radius:14px;padding:12px;cursor:pointer}.fh-a{background:#0071E3;color:#fff}.fh-b{background:var(--bg,#F5F5F7);color:var(--ink,#1D1D1F)}
 .fh-cards{margin-top:12px}.fh-note{font-size:13px;color:var(--soft,#6E6E73);margin:14px 2px 0;line-height:1.6}
 @media (max-width:560px){.fh-entry{flex-wrap:wrap;gap:8px 10px;padding:14px}.fh-go{width:100%;text-align:center}.fh-panel{padding:16px 14px 18px;border-radius:20px}.fh-opts{grid-template-columns:1fr 1fr}.fh-opts.fh-3{grid-template-columns:1fr}.fh-q{font-size:19px}.fh-big{font-size:26px}.fh-foot{flex-direction:column}}
+.cand3{padding:14px 14px 12px!important}.cand3 .bh{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;margin-bottom:10px!important}.cand3 .bh b{font-size:16.5px;color:#1D1D1F}.cand3 .bh small{flex-basis:100%;font-size:13px;color:#6E6E73}
+.cand{display:flex;align-items:flex-start;gap:10px;background:#F5F5F7;border-radius:14px;padding:12px 12px;margin:8px 0;cursor:pointer;color:#1D1D1F;text-decoration:none}.cand:hover{background:#E8F0FE}
+.cand .cn{flex:none;font-size:18px;font-weight:800;color:#C57400;line-height:1.35}.cand .cb{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}.cand .cm{display:flex;align-items:center;gap:8px}.cand .cp{color:#0B5BE0;font-size:14.5px}
+.cand .ct{font-size:15.5px;font-weight:700;line-height:1.4}.cand .ca{font-size:13.5px;color:#555;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.cand .cg{flex:none;color:#999;font-size:20px;align-self:center}
+.cand3 .chint{font-size:13px;color:#6E6E73;margin:8px 2px 0;line-height:1.5}.cand3 .chint b{color:#1D1D1F}.cand3 .bbtns{margin-top:6px}
 </style>
 </head>
 <body>
@@ -1075,6 +1080,10 @@ function relRow(i){const s=results[i];const t=(s.t||s.s||s.c||'').replace(/^Q\.\
 function relHtml(g){if(!g||!g.rel||!g.rel.length)return'';return `<div class="grels"><div class="sh">비슷한 내용의 다른 쪽 <b>${g.rel.length}</b></div>`+g.rel.map(r=>relRow(r.i)).join('')+`</div>`}
 function nextHtml(){const nx=GRP.slice(shown,shown+REL_NEXT);if(nx.length<2)return'';return `<div class="gnext"><div class="sh">그다음 결과 <b>${nx.length}</b>개 · 제목만 먼저 보여 드려요 <small>(누르면 그 쪽이 열려요)</small></div>`+nx.map((g,k)=>relRow(g.i).replace('class="grel ','class="grel '+(k>=5?'gx ':''))).join('')+(nx.length>5?`<button type="button" class="gnmore">제목 ${nx.length-5}개 더 보기</button>`:'')+`</div>`}
 let GRP=[];function groupRes(){const m=new Map();GRP=[];const leads=new Set();results.forEach((it,i)=>{const k=it.d+':'+it.pp;if(m.has(k))m.get(k).subs.push(i);else{const tw=twinOf(it);if(tw&&leads.has(tw.d+':'+tw.pp))return;leads.add(k);const g={i,subs:[]};m.set(k,g);GRP.push(g)}});relGroup()}
+function candBox(){const num=['①','②','③'];const lab=x=>(x.t||x.s||x.c||'').replace(/^Q\.\s*/,'').replace(/^사례 \d+\.\s*(\([^)]*\)\s*)?/,'').replace(/^질의 \d+\.\s*/,'');
+ const rows=results.slice(0,3).map((x,k)=>{let a=(x.ans||'');if(!a){try{a=snippets(x)[0]||''}catch(e){}}a=String(a).replace(/<[^>]+>/g,'');if(a.length>78)a=a.slice(0,78)+'…';
+  return `<a class="cand" data-k="${k}"><span class="cn">${num[k]}</span><span class="cb"><span class="cm"><span class="badge d${x.d}">${esc(DOCS[x.d].name)}</span><b class="cp">${x.pp}쪽</b></span><span class="ct">${esc(lab(x))}</span>${a?`<span class="ca">${esc(a)}</span>`:''}</span><span class="cg">›</span></a>`}).join('');
+ return `<div class="best amb cand3"><div class="bh">${AI.state==='on'?'<span class="ai">AI</span>':''}<b>비슷한 쪽이 3곳이에요</b><small>한 곳으로 못 골랐어요. 눌러서 원문을 비교해 보세요</small></div>${rows}<div class="bbtns"><button type="button" class="bnope" data-fb="send">못 찾았어요</button>${bbk()}</div><div class="chint">맞는 게 없으면 다른 말로 다시 검색하거나, 위에서 편람을 고른 뒤 <b>3p</b>처럼 쪽수를 쳐 보세요</div></div>`}
 function render(more){
   const N=more?30:5;if(!more){shown=0;list.innerHTML='';groupRes()}
   const part=GRP.slice(shown,shown+N);
@@ -1138,13 +1147,14 @@ async function run(keepOff){try{if(!NICK){showGate();return}}catch(e){}
     const b=results[0],lab=x=>x.t||x.s||x.c||'';
     const sim=results.slice(1,4).map((x,k)=>`<a data-k="${k+1}">${esc(DOCS[x.d].short)} ${x.pp}쪽 · ${esc(lab(x).replace(/^사례 \d+\.\s*(\([^)]*\)\s*)?/,'').replace(/^질의 \d+\.\s*/,'').slice(0,34))}</a>`).join(' &nbsp;·&nbsp; ');
     let CKN=0;try{CKN=chkTop(q).length}catch(e){}
-    const SC=window.__sc||[999,0,0],LOW=AI.state!=='on'&&SC[0]<60&&!FSEL.size,AMB=!LOW&&AI.state!=='on'&&SC[1]>=0.9*SC[0],REF=!LOW&&!AMB&&CKN>0;
+    const SC=window.__sc||[999,0,0],LOW=AI.state!=='on'&&SC[0]<60&&!FSEL.size;var AMB_NEW=false;const AMB=!LOW&&AI.state!=='on'&&SC[1]>=0.9*SC[0],REF=!LOW&&!AMB&&CKN>0;AMB_NEW=AMB&&results.length>=3;
     g=(LOW?`<div class="lowc"><b>딱 맞는 곳을 찾지 못했어요.</b> 아래는 글자만 비슷한 후보예요. 업무 말로 바꿔 적어 보세요 (예: 집주인 → 임대인)<br>${bbk()}<button type="button" class="lowfb" data-fb="send">못 찾았어요</button></div>`:`<div class="best d${b.d}${AMB||REF?' amb':''}"><div class="bh">${AI.state==='on'?'<span class="ai">AI</span>':''}${AMB?'비슷한 경우가 여러 개예요 · 아래 다른 후보도 같이 보세요':REF?'편람에서 가장 비슷한 사례 · 위 준비물 카드와 함께 확인하세요':'말씀하신 상황은 이 경우와 가장 비슷해 보여요'}</div>`+
       `<div class="bt"><span class="badge">${esc(DOCS[b.d].name)}</span>${esc(lab(b))}<span class="bpg">${b.pp}쪽</span></div>`+
       (b.ans?`<div class="ans"><b>${b.d==1?'회신':b.qc?'답(요약)':'답'}</b>${hlText(b.ans)}</div>`:'')+oldNote(b)+twinNote(b)+
       `<div class="bbtns"><button type="button" class="bopen" data-k="0">이 쪽 열어 보기</button><button type="button" class="bnope" data-fb="send">못 찾았어요</button>${bbk()}</div>`+
       (sim?`<details class="bsim"${AMB?' open':''}><summary>${AMB?'다른 후보':'비슷한 경우'} ${Math.min(3,results.length-1)}개 보기</summary><div>${sim}</div></details>`:'')+`</div>`)+g;
   }
+  if(AMB_NEW){const i0=g.indexOf('<div class="best'),i1=g.indexOf('</details></div>',i0);if(i0>=0&&i1>0)g=g.slice(0,i0)+candBox()+g.slice(i1+16)}
   try{g=famHtml(q)+chkHtml(q)+g}catch(e){console.error(e)}
   if(/(신고서|서식|양식|작성\s*예시|작성법|어떻게\s*(써|작성)|쓰는\s*법)/.test(q)&&/(출생|사망|돌아가|낳)/.test(q)){const dd=/(사망|돌아가)/.test(q)&&!/출생/.test(q);g=`<div class="lowc seoq"><b>${dd?'사망':'출생'}신고서 작성 예시가 있어요.</b> 경우별 8장을 볼 수 있어요.<button type="button" class="lowfb" data-seo="${dd?14:6}">${dd?'사망':'출생'}신고서 예시 보기</button></div>`+g}
   guess.innerHTML=g;try{renderNotes(q)}catch(e){}
