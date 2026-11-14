@@ -741,7 +741,7 @@ body:has(.fh-panel) #totop{display:none}
 #ffam{display:none!important}
 .jd-key{display:flex;gap:10px;align-items:flex-start;background:#FFF4CC;border:2px solid #F2B300;border-radius:14px;padding:11px 14px;margin:0 0 14px}.jd-pin{font-size:22px;line-height:1.2}.jd-key b{display:block;font-size:17px;font-weight:900;color:#1D1D1F;margin-bottom:2px}.jd-key span:not(.jd-pin){display:block;font-size:14.5px;line-height:1.55;color:#4A3B00;font-weight:600}.jd-key .jd-key2{margin-top:6px;background:#fff;border-radius:9px;padding:6px 10px;font-size:14px!important;color:#1D1D1F!important}.jd-key .jd-key2 b{display:inline!important;font-size:inherit!important;color:#B3261E!important}.jd-key u{text-decoration:none;font-weight:900;color:#B3261E;background:linear-gradient(transparent 58%,#FFD84D 58%)}
 .jd-c1 .fh-o{grid-column:1/-1;text-align:left;padding:13px 16px}.jd-c1 .fh-o.fh-sp{text-align:center}.jd-c1{grid-template-columns:1fr!important}
-.jd-tb{border-radius:16px;overflow:hidden;border:1.5px solid #E3E3E8;margin:0 0 12px}.jd-tb .r{display:grid;grid-template-columns:128px 1fr;border-top:1.5px solid #E3E3E8}.jd-tb .r:first-child{border-top:0}
+.fh-q+.jd-grp{margin-top:12px}.jd-gn{margin:-2px 0 7px;font-size:12.8px;color:#6E6E73}.jd-c1 .fh-o b{display:block;font-size:16px}.jd-c1 .fh-o small{margin-top:2px}.jd-tb{border-radius:16px;overflow:hidden;border:1.5px solid #E3E3E8;margin:0 0 12px}.jd-tb .r{display:grid;grid-template-columns:128px 1fr;border-top:1.5px solid #E3E3E8}.jd-tb .r:first-child{border-top:0}
 .jd-tb .who{padding:10px 12px;font-weight:800;font-size:15px;line-height:1.35;display:flex;flex-direction:column;justify-content:center}.jd-tb .who small{font-size:12.5px;font-weight:700;opacity:.85}
 .jd-tb .res{padding:9px 12px;font-size:14.5px;line-height:1.45}.jd-tb .res b{display:block;font-size:16.5px;margin-bottom:1px}.jd-tb .res small{display:block;color:#6E6E73;font-size:12.8px}
 .jd-tb .g .who{background:#E6F6EB;color:#14532D}.jd-tb .g .res b{color:#1E9E4A}.jd-tb .a .who{background:#FFF1D6;color:#7A4A00}.jd-tb .a .res b{color:#C47400}.jd-tb .x .who{background:#FDE6E8;color:#8E0F1B}.jd-tb .x .res b{color:#D70015}
@@ -1126,7 +1126,7 @@ function goBack(){if(V.classList.contains('open')){document.getElementById('vclo
   try{if(!seoEl.hidden){document.getElementById('seoclose').click();return true}}catch(e){}
   const st=history.state||{};
   if(st.i>0){history.back();return true}
-  if(qel.value.trim()||NOTEMODE||FAMMODE){NOTEMODE=false;FAMMODE=false;try{syncF()}catch(e){}qel.value='';run();window.scrollTo({top:0,behavior:'smooth'});return true}
+  if(qel.value.trim()||NOTEMODE||FAMMODE||document.querySelector('#list>#jd')){NOTEMODE=false;FAMMODE=false;try{syncF()}catch(e){}qel.value='';run();window.scrollTo({top:0,behavior:'smooth'});return true}
   return false}
 let runId=0;
 async function run(keepOff){try{if(!NICK){showGate();return}}catch(e){}
@@ -1348,83 +1348,94 @@ function runFamAll(){results=[];GRP=[];chips.style.display='none';guess.innerHTM
   FH.open=false;list.innerHTML=`<div id="fh" class="fh"></div>`+rule+FGROUPS.filter(n=>G[n]).map(n=>`<details class="famgrp"><summary>${esc(n)} <small>${G[n].length}장</small></summary>`+G[n].map(c=>famCard(c,false)).join('')+`</details>`).join('');fhRender()}
 // ---------- 전입신고 판단기 (누가 왔을 때 되는지 · 안 되는지 · 필요한 서류). 쪽 번호는 편람에 인쇄된 쪽 기준 ----------
 const JDLOC='<i class="jd-loc">독산1동 실무</i>';
-const JDSN={ALL:'① 세대 전체가 이사',NEW:'② 일부만 이사',JOIN:'③ 이미 사는 세대에 들어감'};
-const JDGRP=[['me','직접','이사 오는 본인이 직접 왔어요',['SM','SH']],['fam','대신','세대주의 가족이 대신 왔어요',['SP','LIN','AFF']],['oth','대신','그 밖의 사람이 대신 왔어요',['SIB','DOM','MSP','PREV','MGR','OTH']]];
-const JDWHO={SP:'세대주의 배우자가 대신 온 경우',LIN:'세대주의 부모 · 자녀 등이 대신 온 경우',AFF:'세대주의 시부모 · 장인장모 · 사위 · 며느리 등이 대신 온 경우',MSP:'이사 오는 사람의 배우자가 대신 온 경우',SIB:'형제자매가 대신 온 경우',MGR:'같은 집 세대원이 대신 온 경우',DOM:'같은 집 동거인이 대신 온 경우',PREV:'이사 나온 집 세대주가 대신 온 경우',OTH:'지인 · 이삿짐 · 부동산 · 법무사가 대신 온 경우'};
+const JDS={ALL:['세대 전체가 이사 · 세대주 그대로','식구 모두 함께 이사해요. 혼자 살던 사람이 이사하는 경우도 여기예요'],
+ ALLCH:['세대 전체가 이사 · 세대주를 바꿈','식구 모두 함께 이사하면서 세대주를 다른 식구로 바꿔요'],
+ NEW:['세대 일부만 이사 · 새로 세대 구성','식구 중 일부만 나와서 따로 살아요 (분가 · 독립)'],
+ JOIN:['다른 세대로 편입 · 합가','이미 사람이 살고 있는 집에 들어가요 (예: 부모님 집, 형 집, 친구 집)']};
+const JDSO=['ALL','ALLCH','NEW','JOIN'];
+const JDGRP=[['me','직접',['이사 오는 사람이 직접 왔어요','이사 오는 사람이나 그 집 세대주가 직접 왔어요'],['SH','SM']],['fam','대신',['세대주의 가족이 대신 왔어요','그 집 세대주의 가족이 대신 왔어요'],['SP','LIN','AFF']],['oth','대신',['그 밖의 사람이 대신 왔어요','그 밖의 사람이 대신 왔어요'],['SIB','MSP','PREV','MGR','DOM','OTH']]];
 let JD={open:false,step:0,S:null,W:null,M:null};
 function jdLabel(k,S){const J=S==='JOIN';
- if(k==='SM')return J?['이사 오는 본인','세대원으로 들어가는 사람 (형제 · 동거인이어도 본인이면 여기)']:['이사 오는 세대원 본인','세대주가 아닌 사람 (형제 · 동거인이어도 본인이면 여기)'];
- if(k==='SH')return J?['새 집 세대주','이미 그 집에 살던 세대주']:['이사 오는 세대주 본인','세대주가 될 사람'];
- return {SP:['세대주의 배우자',''],LIN:['세대주의 부모 · 자녀 등','조부모 · 손자녀 포함'],AFF:['세대주의 시부모 · 장인장모 · 사위 · 며느리','의붓자녀 등 포함'],SIB:['형제자매',''],DOM:['같은 집 동거인','세대원이 아닌 사람'],MSP:['이사 오는 사람의 배우자','세대주 아님'],PREV:['이사 나온 집 세대주',''],MGR:['같은 집 세대원','세대주가 못 올 때'],OTH:['지인 · 이삿짐 · 부동산 · 법무사','']}[k]}
-function jdWho(k,S){if(k==='SM')return '이사 오는 본인이 직접 온 경우';if(k==='SH')return S==='JOIN'?'새 집 세대주가 직접 온 경우':'이사 오는 세대주가 직접 온 경우';return JDWHO[k]}
-function jdOpts(S){return JDGRP.reduce((a,g)=>a.concat(g[3]),[]).filter(k=>!(S!=='JOIN'&&(k==='MSP'||k==='MGR')))}
-const jdSid=(J)=>['','<b>'+(J?'새 집 세대주':'세대주')+' 신분증</b> 제시 '+JDLOC+'<small>편람에는 필요 없어요 (전입자가 직접 신고하면 전입자 신분증만 확인) · 독산1동에서는 요구해요</small>'];
+ if(k==='SH')return J?['그 집 세대주','이미 살고 있는 세대주']:['세대주 본인',S==='ALLCH'?'새로 세대주가 될 사람':(S==='NEW'?'새로 만드는 세대의 세대주':'이사 오는 세대의 세대주')];
+ if(k==='SM')return J?['이사 오는 본인','그 집에 들어가는 사람']:['세대원 본인','같이 이사 오는 식구 (세대주는 안 왔어요)'];
+ return {SP:['세대주의 배우자',''],LIN:['세대주의 부모 · 자녀','조부모 · 손자녀 포함'],AFF:['세대주의 시부모 · 장인장모 · 사위 · 며느리','의붓자녀 포함'],SIB:['형제자매',J?'':'같이 이사하지 않는 형제자매'],MSP:['이사 오는 사람의 배우자','그 집 세대주의 가족은 아님'],PREV:['이사 나온 집 세대주',''],MGR:['그 집 세대원','세대주가 올 수 없을 때'],DOM:['그 집 동거인','세대원이 아닌 사람'],OTH:['지인 · 이삿짐 · 부동산 · 법무사','']}[k]}
+function jdWho(k,S){const l=jdLabel(k,S)[0];return l+((k==='SH'||k==='SM')?' 직접 방문':' 대신 방문')}
+function jdOpts(S){const hide={ALL:['MSP','PREV','MGR','DOM'],ALLCH:['MSP','PREV','MGR','DOM'],NEW:['MSP','MGR','DOM'],JOIN:[]}[S];return JDGRP.reduce((a,g)=>a.concat(g[3]),[]).filter(k=>!hide.includes(k))}
 // 결과: r B 가능 · A 조건부 · X 불가
 function jdJudge(S,W,M){
- const J=S==='JOIN';
- const SIGN=S==='ALL'?[]:[['','이사 오는 사람 <b>전원 서명</b> (전입자 확인란)'],['','이사 오는 사람 <b>신분증</b> <small>신고인의 배우자 · 직계혈족이면 생략 가능 — 행정정보 공동이용으로 가족관계를 확인해요</small>'],['opt','공동이용에 동의하지 않으면 <b>가족관계증명서</b>']];
- const MINOR=[['','<b>미성년 전입자 칸: 법정대리인(친권자 · 후견인) 1명 서명</b> + 그 분의 신분증 <small>미성년자 본인 서명이 아니에요 · 공동친권이면 다른 쪽은 전화로 확인</small>'],['','법정대리인이 맞는지 <b>가족관계증명서</b>로 확인']];
+ const J=S==='JOIN',CH=S==='ALLCH',HN=J?'그 집 세대주':(CH?'새 세대주':'세대주');
+ const F=S==='ALL'?'전입신고서(영 별지 제15호서식)':'전입신고서(영 별지 제15호의2서식)';
+ const SIGN=S==='ALL'?[]:[['','이사 오는 사람 <b>모두의 서명</b> (전입자 확인란)'],['','이사 오는 사람 <b>신분증</b> <small>신고인의 배우자 · 부모 · 자녀(직계혈족)면 생략 가능 — 행정정보 공동이용으로 가족관계를 확인해요</small>'],['opt','공동이용에 동의하지 않으면 <b>가족관계증명서</b>']];
+ const CHX=CH?[['','<b>바꾸기 전 세대주의 서명 또는 날인</b> <small>전입신고와 동시에 세대주 변경으로 처리해요 (2024 주민등록 사무편람 66쪽)</small>']]:[];
+ const SID=['','<b>'+HN+' 신분증</b> 제시 '+JDLOC+'<small>편람에는 필요 없어요 (전입자가 직접 신고하면 전입자 신분증만 확인) · 독산1동에서는 요구해요</small>'];
+ const MINOR=[['','<b>미성년 전입자 칸: 법정대리인(친권자 · 후견인) 1명 서명</b> + 그분의 신분증 <small>미성년자 본인 서명이 아니에요 · 공동친권이면 다른 쪽은 전화로 확인</small>'],['','법정대리인이 맞는지 <b>가족관계증명서</b>로 확인']];
  const MALT='법정대리인 서명을 못 받거나 친권자 한 명이 동의하지 않으면 → 거절하지 말고 <b>사실조사</b>로 갈음해 접수해요';
- const fin=(R)=>{R.minor='';R.extra='';
+ const NOTES={ALL:[],ALLCH:['세대주를 바꾸지 않으면 전입신고서(영 별지 제15호서식)로, 바꾸면 전입신고서(영 별지 제15호의2서식)로 받아요'],
+  NEW:['세대주였던 사람이 나오는 경우(세대주 포함 일부 이동): 전입신고서의 "전에 살던 곳" 칸에 남은 세대의 세대주 성명 · 연락처를 적어요 (2024 주민등록 사무편람 67쪽)','세대주가 아닌 사람만 나와 새 세대를 만들면 전 세대주의 확인(동의)은 필요 없어요 (2025 주민등록 질의회신 사례집 76쪽)'],
+  JOIN:['세대 합가(세대주였던 사람이 들어오는 경우)도 같아요. 들어온 사람을 세대주로 바꾸려면 전입 처리 뒤에 따로 정정신고(영 별지 제9호서식)를 해요 (2024 주민등록 사무편람 67쪽)']}[S];
+ const fin=(R)=>{R.minor='';R.notes=R.r==='X'?[]:NOTES;
+   if(CH&&R.r!=='X'){R.ev='i';R.src=R.src.concat([[0,66]])}
    if(S!=='ALL'&&M&&R.r!=='X'){R.chk=R.chk.concat(MINOR);R.alt=(R.alt?R.alt+'<br>':'')+'💡 '+MALT;R.src=R.src.concat([[0,92],[1,126]])}
-   if(S==='ALL'&&R.r!=='X')R.minor='세대 전체가 이사하고 세대주가 그대로면, 미성년 자녀가 있어도 세대주가 신고하면 돼요. 법정대리인 서명을 따로 받지 않아요.';
-   if(S==='NEW'&&R.r!=='X')R.extra='세대주 변경이 함께 있으면 전 세대주 확인(동의)이 따로 필요해요 (2024 주민등록 사무편람 66~68쪽 · 2025 주민등록 질의회신 사례집 76쪽)';
+   if(S==='ALL'&&R.r!=='X')R.minor='세대 전체가 이사하고 세대주가 그대로면, 미성년 자녀가 있어도 세대주가 신고하면 돼요. 법정대리인 서명을 따로 받지 않아요.<small>2024 주민등록 사무편람 91쪽은 이 경우 세대주 · 신고인 서명과 신분증만 적고, 법정대리인 서명은 92쪽(일부 이사 · 세대주 변경)에 있어요. <span class="jd-ev i">편람 쪽 구성 기준 추론 · 독산1동 방식과 같음</span></small>';
    return R};
- const fam=(why)=>fin({r:'A',big:'위임장이 있으면 가능',ev:'d',why,say:['세대주가 서명한 <b>위임장</b>과 <b>세대주 신분증</b>을 가져오게 하세요'],
-   chk:[['','위임용 전입신고서(영 별지 제15호의2서식) — 위임란에 <b>세대주 서명 또는 날인</b> '+JDLOC+'<small>이름이 나와 있는 인감 · 도장도 인정해요</small>'],['','<b>세대주 신분증</b> 제시'],['','<b>대신 온 사람 신분증</b>']].concat(SIGN).concat(S==='ALL'?[['opt','세대원(전입자) 서명 · 신분증 — 세대 전체 이동 + 위임일 때는 편람에 따로 없어요 <i class="jd-inf">추론 · 구청 확인</i>']]:[]),
-   alt:'신고인이 형제자매 · 동거인 · 지인이면 → 위임장이 있어도 <b>불가</b>',src:[[0,90],[0,92],[1,124]]});
- const no=(why,alt,src,ev)=>({r:'X',big:'불가',ev:ev||'d',why,say:['<b>'+(S==='ALL'||S==='NEW'?'이사 오는 사람(또는 세대주)':'이사 오는 본인')+'</b>이 직접 오게 하세요'+(J?' (새 집 세대주 서명만 받아 오면 돼요)':''),'또는 <b>세대주의 배우자 · 부모 · 자녀</b> 등이 위임장을 받아 오게 하세요'],chk:[],alt,src,minor:'',extra:'',note:'참고: 정부24 온라인 전입신고는 이사 오는 본인만 할 수 있어요'});
+ const fam=(why)=>fin({r:'A',big:'위임장이 있으면 가능',ev:'d',why,say:['<b>'+HN+'가 서명(날인)한 위임장</b>과 <b>'+HN+' 신분증</b>을 가져오게 하세요'],
+   chk:[['','위임용 '+(S==='ALL'?'전입신고서(영 별지 제15호의2서식)':F)+' — 위임란에 <b>'+HN+' 서명 또는 날인</b> '+JDLOC+'<small>이름이 나와 있는 인감 · 도장도 인정해요</small>'],['','<b>'+HN+' 신분증</b> 제시'],['','<b>대신 온 사람 신분증</b>']].concat(CHX).concat(SIGN).concat(S==='ALL'?[['opt','세대원(전입자) 서명 · 신분증 — 세대 전체 이사 + 위임일 때는 편람에 따로 없어요 <i class="jd-inf">추론 · 구청 확인</i>']]:[]),
+   alt:'대신 온 사람이 형제자매 · 동거인 · 지인이면 → 위임장이 있어도 <b>불가</b>',src:[[0,90],[0,92],[1,124]]});
+ const no=(why,alt,src,ev)=>({r:'X',big:'불가',ev:ev||'d',why,say:['<b>'+(J?'이사 오는 본인':'이사 오는 사람(세대주 또는 세대원)')+'</b>이 직접 오게 하세요'+(J?' — 그 집 세대주 서명만 받아 오면 돼요':''),'또는 <b>'+(J?'그 집 ':'')+'세대주의 배우자 · 부모 · 자녀</b> 등이 위임장을 받아 오게 하세요'],chk:[],alt,src,minor:'',notes:[],note:'참고: 정부24 온라인 전입신고는 이사 오는 본인만 할 수 있어요'});
  if(W==='SH'){
-  if(S==='ALL')return fin({r:'B',big:'가능',ev:'d',why:'세대주가 직접 신고하는 가장 기본 경우예요',say:['전입신고서(영 별지 제15호서식)에 세대주가 서명하고 신분증을 확인해 접수하세요'],chk:[['','<b>세대주(신고인) 서명</b>'],['','<b>신고인 신분증</b>']],alt:'',src:[[0,91],[0,92]]});
-  if(S==='NEW')return fin({r:'B',big:'가능',ev:'d',why:'이사 오는 세대주가 직접 신고하는 경우예요',say:['전입신고서(영 별지 제15호의2서식)에 세대주와 이사 오는 사람 전원이 서명하고 신분증을 확인해 접수하세요'],chk:[['','<b>세대주(신고인) 신분증</b>']].concat(SIGN),alt:'',src:[[0,91],[0,92]]});
-  return fin({r:'B',big:'가능',ev:'d',why:'새 집 세대주가 직접 와서 전입자를 세대에 넣는 경우예요',say:['전입신고서(영 별지 제15호의2서식)에 세대주와 전입자 전원이 서명하고 신분증을 확인해 접수하세요'],chk:[['','<b>새 집 세대주(신고인) 신분증</b>']].concat(SIGN),alt:'',src:[[0,92],[1,101]]})}
+  if(S==='ALL')return fin({r:'B',big:'가능',ev:'d',why:'세대주가 직접 신고하는 가장 기본 경우예요',say:[F+'에 세대주가 서명하고, 신분증을 확인해 접수하세요'],chk:[['','<b>세대주(신고인) 서명</b>'],['','<b>세대주(신고인) 신분증</b>']],alt:'',src:[[0,91],[0,92]]});
+  if(CH)return fin({r:'A',big:'바꾸기 전 세대주 서명이 있으면 가능',ev:'i',why:'새로 세대주가 될 사람이 직접 신고하는 경우예요. 세대주를 바꾸려면 바꾸기 전 세대주의 확인이 있어야 해요',say:[F+'에 <b>바꾸기 전 세대주의 서명(날인)</b>을 받아 오게 하세요','이사 오는 사람 모두의 서명과 신분증을 확인해 접수하세요'],chk:[['','<b>새 세대주(신고인) 신분증</b>']].concat(CHX).concat(SIGN),alt:'',src:[[0,91],[0,92]]});
+  if(S==='NEW')return fin({r:'B',big:'가능',ev:'d',why:'새로 만드는 세대의 세대주가 직접 신고하는 경우예요',say:[F+'에 세대주와 이사 오는 사람 모두가 서명하고, 신분증을 확인해 접수하세요'],chk:[['','<b>세대주(신고인) 신분증</b>']].concat(SIGN),alt:'',src:[[0,91],[0,92]]});
+  return fin({r:'B',big:'가능',ev:'d',why:'그 집 세대주가 직접 와서 들어오는 사람을 자기 세대에 넣는 경우예요',say:[F+'에 그 집 세대주와 이사 오는 사람 모두가 서명하고, 신분증을 확인해 접수하세요'],chk:[['','<b>그 집 세대주(신고인) 신분증</b>']].concat(SIGN),alt:'',src:[[0,92],[1,101]]})}
  if(W==='SM'){
-  const base={r:'A',big:'세대주 서명이 있으면 가능',ev:'d',alt:'세대주가 직접 오거나 가족이 위임장을 받아 오는 방법도 있어요',src:[[0,92],[0,93],[1,101]]};
-  if(S==='ALL')return fin(Object.assign(base,{ev:'i',why:'세대원이 직접 신고하는 경우예요. 위임장은 필요 없고 세대주 서명은 받아야 해요 (가능하면 세대주가 직접 오는 편이 안전해요)',say:['전입신고서(영 별지 제15호서식)에 <b>세대주 서명</b>을 받아 오게 하세요','세대주 신분증은 편람에는 없지만 독산1동에서는 함께 가져오게 해요'],chk:[['','<b>세대주 서명</b>'],jdSid(false),['','<b>신고인(전입자) 신분증</b>']],src:[[0,91],[0,92]]}));
-  return fin(Object.assign(base,{why:J?'본인 신고는 새 집 세대주의 서명(확인)만 있으면 돼요':'세대원인 본인이 신고하는 경우는 세대주의 서명(확인)만 있으면 돼요',say:['전입신고서(영 별지 제15호의2서식)에 <b>'+(J?'새 집 세대주':'세대주')+' 서명</b>을 받아 오게 하세요','세대주 신분증은 편람에는 없지만 독산1동에서는 함께 가져오게 해요'],chk:[['','<b>'+(J?'새 집 세대주':'세대주')+' 서명</b>'],jdSid(J),['','<b>본인(신고인) 신분증</b>'],['','이사 오는 사람 <b>전원 서명</b> (전입자 확인란)'],['','다른 전입자 신분증 <small>신고인의 배우자 · 직계혈족이면 생략 가능, 아니면 각자 제시</small>']].concat(J?[['opt','서명이 의심되면 세대주와 연락해 확인 <small>행안부 주민과-2213 (2019.4.24.) — 동거인이 전입신고할 때 세대주 확인 강화</small>']]:[])}))}
- if(W==='SP')return fam('세대주의 배우자는 세대주가 위임하면 대신 할 수 있어요 (주소가 따로인 부부도 같아요)');
- if(W==='LIN')return fam('세대주의 부모 · 자녀 등(직계혈족)은 세대주가 위임하면 대신 할 수 있어요');
- if(W==='AFF')return fam('세대주 배우자의 직계혈족(시부모 · 장인장모 · 의붓자녀 등)과 직계혈족의 배우자(사위 · 며느리)도 세대주가 위임하면 대신 할 수 있어요');
- if(W==='MSP')return no('이사 오는 사람의 배우자는 새 집 세대주의 가족이 아니면 위임받을 수 있는 범위 밖이에요','💡 그 배우자가 새 집 세대주의 배우자 · 부모 · 자녀 등이라면 → 위임장으로 가능',[[1,126],[0,90]]);
- if(W==='SIB')return no('형제자매는 위임장이 있어도 대신 신고할 수 없어요','💡 <b>이사 오는 본인이 직접 왔다면</b> → 이 경우가 아니라 "'+jdLabel('SM',S)[0]+'"이에요'+(J?' (예: 형 집에 들어가는 동생이 직접 온 경우 — 형인 새 집 세대주의 서명만 받아 오면 돼요)':''),[[1,126],[0,90]]);
- if(W==='DOM')return no('동거인은 신고할 수 있는 "세대를 관리하는 자"가 아니라서 대신 신고할 수 없어요','💡 동거인이 <b>이사 오는 본인</b>이라면 → 본인 신고로 가능 (새 집 세대주 서명 필요)',[[1,125]]);
- if(W==='PREV')return no('이사 나온 집 세대주는 세대원을 다른 곳으로 전입신고할 수 없어요 (전입신고는 늘 새 집 기준)','💡 그 분이 이사 오는 본인이거나 새 집 세대주의 배우자 · 부모 · 자녀 등이라면 → 그 자격으로 가능',[[1,101]]);
- if(W==='MGR')return {r:'A',big:'세대주가 못 올 사정일 때만 가능',ev:'i',why:'같은 집 세대원(세대를 관리하는 자)은 세대주가 할 수 없을 때 신고할 수 있어요',say:['세대주가 못 오는 사정을 먼저 확인하세요','세대주가 올 수 있으면 세대주가 직접 오거나 가족이 위임받아 오게 하세요'],chk:[['','<b>신고인 신분증</b>'],['','<b>세대주가 할 수 없는 사정</b> 확인 <small>이 경우 필요한 서류는 편람에 따로 없어요 <i class="jd-inf">추론 · 구청 확인</i></small>']],alt:'💡 같은 집에 살아도 세대원이 아닌 <b>동거인</b>이면 → 불가',src:[[0,90],[1,124],[1,125]],minor:'',extra:''};
- return no('지인 · 이삿짐 · 부동산 · 법무사는 신고할 수 있는 사람 목록에 없어요 (편람에 직접 사례는 없어요)','💡 신고인이 세대주의 배우자 · 부모 · 자녀 등을 겸하면 그 관계로 다시 골라 보세요',[[0,90],[1,125]],'i')}
-function jdSrc(a){const seen={};return a.filter(([d,n])=>{const k=d+':'+n;return seen[k]?0:(seen[k]=1)}).map(([d,n])=>`<a class="cksrc fh-src" data-d="${d}" data-pp="${n}">${esc(DOCS[d].name)} ${n}쪽</a>`).join('')}
+  const say=[F+'에 <b>'+HN+' 서명</b>을 받아 오게 하세요'].concat(CH?['<b>바꾸기 전 세대주의 서명(날인)</b>도 함께 받아 오게 하세요']:[]).concat(['세대주 신분증은 편람에는 없지만 독산1동에서는 함께 가져오게 해요']);
+  if(S==='ALL')return fin({r:'A',big:'세대주 서명이 있으면 가능',ev:'d',why:'같이 이사 오는 세대원이 직접 신고하는 경우예요. 위임장은 필요 없고, 세대주 서명은 받아야 해요',say,chk:[['','<b>세대주 서명</b>'],SID,['','<b>신고인(세대원) 신분증</b>']],alt:'세대주가 직접 오면 → 세대주 서명과 신분증만으로 가능',src:[[0,91],[0,92]]});
+  return fin({r:'A',big:HN+' 서명이 있으면 가능',ev:'d',why:J?'이사 오는 본인이 신고하면 그 집 세대주의 서명(확인)만 있으면 돼요. 위임장은 필요 없어요':'같이 이사 오는 세대원이 직접 신고하는 경우예요. 위임장은 필요 없고, '+HN+' 서명은 받아야 해요',say,
+   chk:[['','<b>'+HN+' 서명</b>'],SID,['','<b>신고인(본인) 신분증</b>']].concat(CHX).concat([['','이사 오는 사람 <b>모두의 서명</b> (전입자 확인란)'],['','다른 전입자 신분증 <small>신고인의 배우자 · 부모 · 자녀(직계혈족)면 생략 가능, 아니면 각자 제시</small>']]).concat(J?[['opt','서명이 의심되면 세대주와 연락해 확인 <small>행안부 주민과-2213 (2019.4.24.) — 동거인이 전입신고할 때 세대주 확인 강화</small>']]:[]),
+   alt:HN+'가 직접 오거나, '+HN+'의 가족이 위임장을 받아 오는 방법도 있어요',src:[[0,92],[0,93],[1,101]]})}
+ if(W==='SP')return fam(HN+'의 배우자는 세대주가 위임하면 대신 신고할 수 있어요 (주소가 따로인 부부도 같아요)');
+ if(W==='LIN')return fam(HN+'의 부모 · 자녀(직계혈족)는 세대주가 위임하면 대신 신고할 수 있어요');
+ if(W==='AFF')return fam(HN+'의 시부모 · 장인장모 · 의붓자녀(배우자의 직계혈족)와 사위 · 며느리(직계혈족의 배우자)도 세대주가 위임하면 대신 신고할 수 있어요');
+ if(W==='MSP')return no('이사 오는 사람의 배우자는 그 집 세대주의 가족이 아니어서 위임받을 수 없어요','💡 그 배우자가 그 집 세대주의 배우자 · 부모 · 자녀라면 → 위임장으로 가능',[[1,126],[0,90]]);
+ if(W==='SIB')return no('형제자매는 위임장이 있어도 대신 신고할 수 없어요','💡 그 형제자매가 <b>이사 오는 본인</b>이라면 → 이 경우가 아니라 "'+jdLabel('SM',S)[0]+'"이에요'+(J?' (예: 형 집에 들어가는 동생이 직접 온 경우 — 형의 서명만 받아 오면 돼요)':''),[[1,126],[0,90]]);
+ if(W==='DOM')return no('동거인은 신고할 수 있는 "세대를 관리하는 자"가 아니어서 대신 신고할 수 없어요','💡 그 동거인이 <b>이사 오는 본인</b>이라면 → "이사 오는 본인"으로 가능 (그 집 세대주 서명 필요)',[[1,125]]);
+ if(W==='PREV')return no('이사 나온 집 세대주는 세대원을 다른 곳으로 전입신고할 수 없어요. 전입신고는 늘 이사 간 집을 기준으로 봐요','💡 그분이 '+(J?'그 집 ':'새 ')+'세대주의 배우자 · 부모 · 자녀라면 → 그 자격으로 위임받아 가능 (예: 분가한 자녀의 전입신고를 부모가 위임받아 하는 경우)',[[1,101]]);
+ if(W==='MGR')return {r:'A',big:'세대주가 올 수 없을 때만 가능',ev:'i',why:'그 집 세대원(세대를 관리하는 자)은 세대주가 신고할 수 없을 때 대신 신고할 수 있어요',say:['세대주가 올 수 없는 사정을 먼저 확인하세요','세대주가 올 수 있으면 세대주가 직접 오거나 가족이 위임받아 오게 하세요'],chk:[['','<b>신고인 신분증</b>'],['','<b>세대주가 올 수 없는 사정</b> 확인 <small>이 경우 필요한 서류는 편람에 따로 없어요 <i class="jd-inf">추론 · 구청 확인</i></small>']],alt:'💡 같은 집에 살아도 세대원이 아닌 <b>동거인</b>이면 → 불가',src:[[0,90],[1,124],[1,125]],minor:'',notes:[]};
+ return no('지인 · 이삿짐 · 부동산 · 법무사는 신고할 수 있는 사람이 아니에요 (편람에 직접 사례는 없어요)','💡 대신 온 사람이 세대주의 배우자 · 부모 · 자녀이기도 하다면 그 관계로 다시 골라 보세요',[[0,90],[1,125]],'i')}
+function jdSrc(a){const seen={};return a.filter(([d,n])=>{const k=d+':'+n;return seen[k]?0:(seen[k]=1)}).map(([d,n])=>`<a class="cksrc fh-src" data-d="${d}" data-pp="${n}">${esc(DOCS[d].full||DOCS[d].name)} ${n}쪽</a>`).join('')}
 function jdRender(){const el=document.getElementById('jd');if(!el)return;
  if(!JD.open){el.innerHTML=`<button type="button" class="fh-entry" data-jd="open"><span class="fh-tag">전입신고 판단기</span><span class="fh-et"><b>대신 전입신고하러 왔을 때</b><small>누가 왔는지 고르면 되는지 · 안 되는지 · 필요한 서류까지</small></span><span class="fh-go">문답으로 판단하기 ›</span></button>`;return}
  const head=`<div class="fh-top"><span class="fh-tag">전입신고 판단기</span><button type="button" class="fh-x" data-jd="close">닫기 ✕</button></div>`;
  const prog=n=>`<div class="fh-prog">${[1,2,3].map(i=>`<i${i<=n?' class="on"':''}></i>`).join('')}</div>`;
- const sofar=()=>{const a=[];if(JD.S)a.push(JDSN[JD.S]);return a.length?`<div class="fh-sofar">${a.map(x=>`<span>${x}</span>`).join('')}</div>`:''};
+ const sofar=()=>JD.S?`<div class="fh-sofar"><span>${JDS[JD.S][0]}</span></div>`:'';
  const back=`<button type="button" class="fh-back" data-jd="back">‹ 앞 질문으로</button>`;
  let h='';
  if(JD.step===0)h=`<p class="fh-q" style="font-size:19px">대신 전입신고, 한눈에 보기</p><p class="fh-hint">표를 보고 헷갈리면 아래 "문답으로 판단하기"를 눌러요</p><div class="jd-tb">`+
-  `<div class="r g"><div class="who">이사 오는 본인<small>직접 왔어요</small></div><div class="res"><b>가능</b>새 집 세대주 서명 받아 오기<small>(본인이 세대주면 서명 필요 없이 가능)</small></div></div>`+
-  `<div class="r g"><div class="who">새 집 세대주<small>직접 왔어요</small></div><div class="res"><b>가능</b>신분증</div></div>`+
-  `<div class="r a"><div class="who">세대주의 가족<small>대신 왔어요</small></div><div class="res"><b>위임장이 있으면 가능</b>세대주의 배우자 · 부모 · 자녀 · 시부모 · 장인장모 · 사위 · 며느리<small>필요한 것: 세대주 서명(날인) 위임장 + 세대주 신분증</small></div></div>`+
+  `<div class="r g"><div class="who">이사 오는 본인<small>직접 왔어요</small></div><div class="res"><b>가능</b>세대주 서명 받아 오기<small>(본인이 세대주면 서명 받을 필요 없이 가능)</small></div></div>`+
+  `<div class="r g"><div class="who">세대주<small>직접 왔어요</small></div><div class="res"><b>가능</b>신분증</div></div>`+
+  `<div class="r a"><div class="who">세대주의 가족<small>대신 왔어요</small></div><div class="res"><b>위임장이 있으면 가능</b>세대주의 배우자 · 부모 · 자녀 · 시부모 · 장인장모 · 사위 · 며느리<small>필요한 것: 세대주가 서명(날인)한 위임장 + 세대주 신분증</small></div></div>`+
   `<div class="r x"><div class="who">그 밖의 사람<small>대신 왔어요</small></div><div class="res"><b>불가</b>형제자매 · 동거인 · 지인 · 부동산 · 이삿짐 · 법무사<small>위임장이 있어도 안 돼요</small></div></div></div>`+
-  `<div class="jd-tbn">기준은 늘 <u>새 집 세대주</u>예요. 이사 오는 <u>본인이 직접</u> 왔다면 형제 · 동거인이어도 <b>본인</b>이에요.</div>`+
+  `<div class="jd-tbn">여기서 세대주는 <u>이사 간 집의 세대주</u>예요. 이미 사람이 사는 집에 들어가면 <u>그 집 세대주</u>가 기준이에요.</div>`+
   `<div class="fh-foot" style="margin-top:12px"><button type="button" class="fh-a" data-jd="go">문답으로 판단하기 ›</button></div><p class="fh-note">근거: 2024 주민등록 사무편람 90 · 92쪽, 2025 주민등록 질의회신 사례집 124~126쪽</p>`;
- else if(JD.step===1)h=prog(1)+`<p class="fh-q">이사 간 집에 <u>어떻게</u> 들어가나요?</p><p class="fh-hint">하나만 골라요</p><div class="fh-opts jd-c1">`+[['ALL','① 원래 세대 <b>전체</b>가 함께 이사','혼자 사는 사람이 이사 오는 경우도 여기예요 (세대주 그대로)'],['NEW','② 원래 세대에서 <b>일부만</b> 나와 이사','분가, 새 세대 구성, 세대주가 바뀌는 경우'],['JOIN','③ 새 집에 <b>이미 사는 세대</b>에 들어감','세대원으로 편입 · 합가 (예: 형 집에 들어감)']].map(x=>`<button type="button" class="fh-o" data-jd="s" data-k="${x[0]}">${x[1]}<small>${x[2]}</small></button>`).join('')+`<button type="button" class="fh-o fh-sp" data-jd="special">사망 · 말소 · 수용자 · 재외국민 · 가정폭력 피해자 등 특수한 경우는 편람 쪽으로 ›</button></div><button type="button" class="fh-back" data-jd="back">‹ 표로 돌아가기</button>`;
- else if(JD.step===2)h=prog(2)+sofar()+`<p class="fh-q">창구에 온 사람은 <u>누구</u>인가요?</p><div class="jd-key"><span class="jd-pin">📌</span><div><b>기준은 <u>새 집 세대주</u>예요</b></div></div>`+JDGRP.map(g=>{const ks=jdOpts(JD.S).filter(k=>g[3].includes(k));return `<div class="jd-grp ${g[0]}"><div class="gh"><i>${g[1]}</i>${g[2]}</div><div class="fh-opts">`+ks.map(k=>{const l=jdLabel(k,JD.S);return `<button type="button" class="fh-o" data-jd="w" data-k="${k}">${l[0]}${l[1]?`<small>${l[1]}</small>`:''}</button>`}).join('')+`</div></div>`}).join('')+back;
+ else if(JD.step===1)h=prog(1)+`<p class="fh-q"><u>어떤</u> 전입신고인가요?</p><p class="fh-hint">전입신고서에 표시하는 칸과 같아요</p><div class="fh-opts jd-c1">`+JDSO.map(k=>`<button type="button" class="fh-o" data-jd="s" data-k="${k}"><b>${JDS[k][0]}</b><small>${JDS[k][1]}</small></button>`).join('')+`<button type="button" class="fh-o fh-sp" data-jd="special">사망 · 말소 · 수용자 · 재외국민 · 가정폭력 피해자 등 특수한 경우는 편람 쪽으로 ›</button></div><button type="button" class="fh-back" data-jd="back">‹ 표로 돌아가기</button>`;
+ else if(JD.step===2){const J=JD.S==='JOIN'?1:0;h=prog(2)+sofar()+`<p class="fh-q">창구에 <u>누가</u> 왔나요?</p>`+JDGRP.map(g=>{let ks=jdOpts(JD.S).filter(k=>g[3].includes(k));if(J&&g[0]==='me')ks=ks.reverse();return `<div class="jd-grp ${g[0]}"><div class="gh"><i>${g[1]}</i>${g[2][J]}</div>${g[0]==='fam'&&!J?'<p class="jd-gn">같이 이사 오는 식구라면 위의 "세대원 본인"을 고르세요</p>':''}<div class="fh-opts">`+ks.map(k=>{const l=jdLabel(k,JD.S);return `<button type="button" class="fh-o" data-jd="w" data-k="${k}">${l[0]}${l[1]?`<small>${l[1]}</small>`:''}</button>`}).join('')+`</div></div>`}).join('')+back}
  else if(JD.step===3)h=prog(3)+sofar()+`<p class="fh-q">이사 오는 사람 중 <u>미성년자</u>(만 19세 미만)가 있나요?</p><p class="fh-hint">있으면 미성년자 본인이 아니라 법정대리인(친권자 · 후견인)이 서명해요</p><div class="fh-opts fh-3"><button type="button" class="fh-o" data-jd="m" data-k="0">없어요<small>이사 오는 사람 모두 성인</small></button><button type="button" class="fh-o" data-jd="m" data-k="1">있어요<small>법정대리인 확인이 추가돼요</small></button></div>`+back;
  else{const R=jdJudge(JD.S,JD.W,JD.M);const cls={B:'gr',A:'am',X:'rd'}[R.r];
   const chk=R.chk.map(c=>`<div class="${c[0]}"><span>${c[1]}</span></div>`).join('');
-  h=`<div class="jd-v ${cls}"><div class="who">${esc(JDSN[JD.S].replace(/^[①②③] /,''))} · ${jdWho(JD.W,JD.S)}${JD.M===true?' · 미성년 전입자 있음':''}</div><div class="big">${R.big}</div></div>`+
+  h=`<div class="jd-v ${cls}"><div class="who">${esc(JDS[JD.S][0])} · ${jdWho(JD.W,JD.S)}${JD.M===true?' · 미성년 전입자 있음':''}</div><div class="big">${R.big}</div></div>`+
    `<div class="jd-why">${R.why}</div>`+
    `<div class="jd-todo"><h5>이렇게 안내하세요</h5><ol>${R.say.map(x=>`<li>${x}</li>`).join('')}</ol></div>`+
    (chk?`<div class="jd-ck"><h5>받을 것</h5>${chk}</div>`:'')+
-   (R.minor?`<div class="jd-one">${R.minor}<small>2024 주민등록 사무편람 91쪽은 이 경우 세대주 · 신고인 서명과 신분증만 적고, 법정대리인 서명은 92쪽(일부 이동 · 세대주 변경)에 있어요. <span class="jd-ev i">편람 쪽 구성 기준 추론 · 독산1동 방식과 같음</span></small></div>`:'')+
+   (R.minor?`<div class="jd-one">${R.minor}</div>`:'')+
    (R.alt?`<div class="jd-one">${R.alt}</div>`:'')+
-   (R.extra?`<div class="jd-note">※ ${R.extra}</div>`:'')+(R.note?`<div class="jd-note">※ ${R.note}</div>`:'')+
-   `<div class="jd-evl"><span class="jd-ev ${R.ev}">${R.ev==='d'?'편람에 있음':'추론 · 구청 확인 권장'}</span> 근거 쪽 (누르면 원문이 열려요)</div><div class="fh-srcs">${jdSrc(R.src)}</div>`+
+   (R.notes||[]).map(x=>`<div class="jd-note">※ ${x}</div>`).join('')+(R.note?`<div class="jd-note">※ ${R.note}</div>`:'')+
+   `<div class="jd-evl"><span class="jd-ev ${R.ev}">${R.ev==='d'?'편람에 있음':'추론 포함 · 구청 확인 권장'}</span> 근거 쪽 (누르면 원문이 열려요)</div><div class="fh-srcs">${jdSrc(R.src)}</div>`+
    `<div class="fh-foot"><button type="button" class="fh-b" data-jd="reset">처음부터 다시</button></div><p class="fh-note">특수한 경우(사망 · 말소 · 수용자 · 재외국민 등)는 판단하지 않아요. 실제 처리는 원문을 확인하세요.</p>`}
  el.innerHTML=`<div class="fh-panel">${head}${h}</div>`}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-jd]');if(!b)return;const a=b.dataset.jd,k=b.dataset.k;
  if(a==='open')JD={open:true,step:0,S:null,W:null,M:null};
  else if(a==='go'||a==='reset')JD={open:true,step:1,S:null,W:null,M:null};
- else if(a==='close')JD.open=false;
+ else if(a==='close'){if(document.querySelector('#list>#jd')){goBack();return}JD.open=false}
  else if(a==='s'){JD.S=k;JD.step=2}
  else if(a==='w'){JD.W=k;const R=jdJudge(JD.S,k,false);if(JD.S==='ALL'||R.r==='X'){JD.M=false;JD.step=4}else JD.step=3}
  else if(a==='m'){JD.M=k==='1';JD.step=4}
@@ -1457,7 +1468,7 @@ function fhJudge(T,pos,H){const t=FHC[T];
   if(h[2])return {r:'B',why:'세대주가 신청인의 '+h[0].replace(/ · /g,'·')+'입니다. 세대주가 가족 범위에 들면 그 집 세대원 누구든 가능합니다.',say:'그 집 세대원 누구든 등본·초본을 발급할 수 있습니다.',alt:'세대주가 가족 범위 밖이었다면 → '+(t[3]?'초본만 가능':'불가'),src:FHSRC.gen,inf};
   if(t[3])return {r:'C',why:'세대주는 가족 범위 밖이지만, 대상자가 신청인의 '+t[0].replace(/ · /g,'·')+'입니다. 배우자와 직계혈족(부모·조부모·자녀·손자녀)은 세대원이어도 본인 초본은 받을 수 있습니다.',say:'대상자 한 명의 초본만 발급합니다. 그 세대 등본은 안 됩니다.',alt:'세대주가 신청인의 가족 범위(배우자, 부모·조부모, 자녀·손자녀, 사위·며느리, 시부모·장인장모)였다면 → 등본·초본 가능',src:FHSRC.gen,inf};
   return {r:'X',why:'세대주가 신청인의 가족 범위 밖입니다. 대상자도 신청인의 배우자·직계혈족이 아니어서 초본만 가능한 경우에도 해당하지 않습니다.'+(t[2]?' ('+t[0].replace(/ · /g,'·')+'는 세대주일 때만 가족 범위에 들어갑니다.)':''),say:'대상자가 위임장(9호)을 써 주면 위임받아 신청할 수 있습니다.',alt:'세대주가 신청인의 가족 범위(배우자, 부모·조부모, 자녀·손자녀, 사위·며느리, 시부모·장인장모)였다면 → 그 집 세대원 누구든 등본·초본 가능',src:FHSRC.gen,inf}}
-function fhSrc(a){return a.map(([d,n])=>`<a class="cksrc fh-src" data-d="${d}" data-pp="${n}">${esc(DOCS[d].name)} ${n}쪽</a>`).join('')}
+function fhSrc(a){return a.map(([d,n])=>`<a class="cksrc fh-src" data-d="${d}" data-pp="${n}">${esc(DOCS[d].full||DOCS[d].name)} ${n}쪽</a>`).join('')}
 function fhOpts(sel,extra,short){return `<div class="fh-opts">`+(short?FHTOP:FHORD).map(k=>`<button type="button" class="fh-o${sel===k?' sel':''}" data-fh="pick" data-k="${k}">${FHC[k][0]}${FHC[k][1]?`<small>${FHC[k][1]}</small>`:''}</button>`).join('')+(extra||'')+`</div>`}
 function fhCards(){const T=FH.T;let cs;if(T==='PAX')cs=FAM.filter(c=>['fs-016','fs-017','fs-018'].includes(c.i));else if(T==='STP')cs=FAM.filter(c=>['fs-029','fs-030'].includes(c.i));else{const m={PA:['PA','ADP'],GP:['GP'],CH:['CH','ADC'],GC:['GC'],SP:['SP'],PIL:['PIL'],CHSP:['CHSP'],SIB:['SIB'],INL:['INL'],UNC:['UNC','NEP','COU'],STC:['STC'],ETC:['SAD','EXSP','COH','FR']}[T]||[];cs=FAM.filter(c=>c.kind==='pair'&&m.includes(c.T)&&(FH.pos==='same'?c.mod==='same':!c.mod))}
   return cs.slice(0,8)}
